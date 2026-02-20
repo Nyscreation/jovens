@@ -203,6 +203,31 @@ tbody tr:last-child td{border-bottom:none}
 .tic{font-size:20px}.tmsg{font-size:14px}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
 
+/* ==========================================================================
+   CSS ADICIONAL: CALENDÁRIO E EVENTOS
+   ========================================================================== */
+.cal-wrapper { background: var(--hover); border-radius: var(--rs); padding: 10px; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-hdr { text-align: center; font-size: 10px; font-weight: 800; color: var(--txm); text-transform: uppercase; padding: 4px; }
+.cal-day { background: var(--bg); border: 1px solid var(--bd); border-radius: 8px; min-height: 60px; padding: 4px; display: flex; flex-direction: column; gap: 4px; transition: var(--tr); }
+.cal-day.empty { background: transparent; border-color: transparent; }
+.cal-day.today { border-color: var(--go); background: var(--gos); }
+.cal-dt { font-size: 12px; font-weight: 700; color: var(--tx2); text-align: right; display: block; }
+.cal-day.today .cal-dt { color: var(--go); }
+.cal-evs { display: flex; flex-wrap: wrap; gap: 2px; }
+.cal-ev { width: 8px; height: 8px; border-radius: 50%; }
+.cal-ev.culto { background: var(--go); }
+.cal-ev.reuniao { background: var(--ac); }
+.cal-ev.celula { background: var(--em); }
+.cal-ev.evento { background: var(--ro); }
+.ev-item { display: flex; gap: 12px; padding: 12px; background: var(--hover); border-radius: var(--rs); align-items: center; margin-bottom: 8px;}
+.ev-date { text-align: center; min-width: 50px; }
+.ev-d { font-size: 18px; font-weight: 800; color: var(--tx); font-family: var(--mo); }
+.ev-m { font-size: 10px; font-weight: 700; color: var(--ac); text-transform: uppercase; }
+.ev-info { flex: 1; }
+.ev-tit { font-size: 14px; font-weight: 700; color: var(--tx); }
+.ev-desc { font-size: 11px; color: var(--tx2); margin-top: 4px; }
+
 @media(min-width:860px){
   .bottom-nav { display:none; }
   .sb{display:flex;}
@@ -262,6 +287,7 @@ tbody tr:last-child td{border-bottom:none}
       <div class="ni" onclick="goTo('members',this)"><span class="ni-ic">👥</span>Membros<span class="nbadge" id="nbadge">0</span></div>
       <div class="ni" onclick="goTo('cells',this)"><span class="ni-ic">🏠</span>Células</div>
       <div class="ni" onclick="goTo('gincana',this); onGincanaPageLoad()"><span class="ni-ic">🏆</span>Gincana</div>
+      <div class="ni" onclick="goTo('events',this); onEventsPageLoad()"><span class="ni-ic">📅</span>Eventos</div>
       <div class="nav-lbl">Chamada & Frequência</div>
       <div class="ni" onclick="goTo('checkin',this)"><span class="ni-ic">✅</span>Fazer Chamada</div>
       <div class="ni" onclick="goTo('history',this)"><span class="ni-ic">📋</span>Histórico</div>
@@ -291,9 +317,21 @@ tbody tr:last-child td{border-bottom:none}
         <div class="cgrid">
           <div class="card"><div class="ch"><div class="ct">Por Tipo de Encontro</div></div><div class="cb"><div class="chc"><canvas id="dc2"></canvas></div></div></div>
         </div>
+        
         <div class="g2" style="margin-top:16px">
           <div class="card"><div class="ch"><div class="ct">🏅 Top 5 da Frequência</div></div><div class="cb"><div class="rl" id="dash-rank"></div></div></div>
           <div class="card"><div class="ch"><div class="ct">📋 Últimas Chamadas</div></div><div class="cb" style="padding:0"><div class="sl" id="dash-sess" style="padding:16px"></div></div></div>
+        </div>
+
+        <div class="card" style="margin-top:16px;">
+            <div class="ch">
+                <div><div class="ct">🏆 Top 10 Jovens do Ano</div><div class="csub">Baseado nas presenças do ano atual</div></div>
+            </div>
+            <div class="cb">
+                <div class="g2" id="dash-top10-annual" style="gap: 12px;">
+                    <div style="color:var(--txm); text-align:center;">Calculando...</div>
+                </div>
+            </div>
         </div>
       </div>
 
@@ -342,6 +380,62 @@ tbody tr:last-child td{border-bottom:none}
             </div>
         </div>
       </div>
+
+      <div id="page-events" class="page">
+        <div class="g2">
+          <div class="card">
+            <div class="ch">
+                <div class="ct">📅 Calendário Mensal</div>
+                <div class="topbar-actions">
+                    <button class="btn-o btn-sm" onclick="changeCalMonth(-1)">◀</button>
+                    <span id="cal-month-label" style="font-size:13px; font-weight:700;">Mês</span>
+                    <button class="btn-o btn-sm" onclick="changeCalMonth(1)">▶</button>
+                </div>
+            </div>
+            <div class="cb">
+                <div class="cal-wrapper">
+                    <div class="cal-grid" id="cal-grid"></div>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:15px; font-size:10px; font-weight:700; color:var(--tx2); justify-content:center; flex-wrap:wrap;">
+                    <div style="display:flex; align-items:center; gap:4px;"><div class="cal-ev culto"></div>Culto</div>
+                    <div style="display:flex; align-items:center; gap:4px;"><div class="cal-ev reuniao"></div>Reunião</div>
+                    <div style="display:flex; align-items:center; gap:4px;"><div class="cal-ev celula"></div>Célula</div>
+                    <div style="display:flex; align-items:center; gap:4px;"><div class="cal-ev evento"></div>Especial</div>
+                </div>
+            </div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:20px;">
+              <div class="card" style="margin-bottom:0;">
+                <div class="ch"><div class="ct">➕ Novo Evento</div></div>
+                <div class="cb">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;">
+                        <div><label style="font-size:11px;color:var(--tx2);display:block;margin-bottom:6px">Data</label><input type="date" class="fc" id="ev-date"></div>
+                        <div><label style="font-size:11px;color:var(--tx2);display:block;margin-bottom:6px">Tipo</label>
+                            <select class="fc" id="ev-type">
+                                <option value="culto">✝️ Culto</option>
+                                <option value="reuniao">📋 Reunião</option>
+                                <option value="celula">🏠 Célula</option>
+                                <option value="evento">🎉 Especial</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="fg"><label>Título do Evento</label><input class="fc" id="ev-title" placeholder="Ex: Acampamento de Verão"></div>
+                    <div class="fg"><label>Descrição (Opcional)</label><input class="fc" id="ev-desc" placeholder="Detalhes rápidos..."></div>
+                    <button class="btn-p" onclick="addEvent()">Salvar Evento</button>
+                </div>
+              </div>
+              
+              <div class="card" style="margin-bottom:0;">
+                <div class="ch"><div class="ct">⏳ Próximos Eventos</div></div>
+                <div class="cb" style="padding:16px; max-height:300px; overflow-y:auto;" id="ev-list">
+                    <div style="color:var(--txm); text-align:center;">Carregando...</div>
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+
       <div id="page-members" class="page">
         <div class="sb2"><span class="sic">🔍</span><input class="sin" id="msrch" placeholder="Buscar jovem..." oninput="filtMembers()"><select class="fc" style="width:auto;padding:8px" id="mfilt" onchange="filtMembers()"><option value="">Todos</option><option>Louvor</option><option>Células</option><option>Intercessão</option><option>Mídia</option><option>Evangelismo</option></select></div>
         <div class="mgrid" id="mgrid"></div>
@@ -393,7 +487,7 @@ tbody tr:last-child td{border-bottom:none}
         </div>
       </div>
       
-      <div id="page-top10" class="page"></div><div id="page-events" class="page"></div><div id="page-discipleship" class="page"></div><div id="page-chat" class="page"></div><div id="page-announcements" class="page"></div><div id="page-gamification" class="page"></div><div id="page-reports" class="page"></div><div id="page-settings" class="page"></div>
+      <div id="page-top10" class="page"></div><div id="page-discipleship" class="page"></div><div id="page-chat" class="page"></div><div id="page-announcements" class="page"></div><div id="page-gamification" class="page"></div><div id="page-reports" class="page"></div><div id="page-settings" class="page"></div>
     </div>
   </main>
 
@@ -401,8 +495,8 @@ tbody tr:last-child td{border-bottom:none}
     <div class="bn-item on" onclick="goTo('dashboard', null); setActiveBN(this)"><span class="ni-ic">📊</span>Início</div>
     <div class="bn-item" onclick="goTo('members', null); setActiveBN(this)"><span class="ni-ic">👥</span>Jovens</div>
     <div class="bn-item" onclick="goTo('gincana', null); setActiveBN(this); onGincanaPageLoad()"><span class="ni-ic">🏆</span>Gincana</div>
+    <div class="bn-item" onclick="goTo('events', null); setActiveBN(this); onEventsPageLoad()"><span class="ni-ic">📅</span>Eventos</div>
     <div class="bn-item" onclick="goTo('checkin', null); setActiveBN(this)"><span class="ni-ic">✅</span>Chamada</div>
-    <div class="bn-item" onclick="goTo('history', null); setActiveBN(this)"><span class="ni-ic">📋</span>Histórico</div>
   </nav>
 </div>
 
@@ -522,6 +616,7 @@ function fmtDs(str){if(!str)return'--/--'; return new Date(str+'T12:00:00').toLo
 function pcol(p){return p>=75?'var(--em)':p>=50?'var(--ac)':'var(--ro)'}
 
 const PGCFG={ dashboard:['Dashboard','Visão geral'], members:['Jovens','Gestão'], cells:['Células','Grupos'], checkin:['Chamada','Registre presenças'], history:['Histórico','Chamadas'], gincana:['Gincana da Juventude', 'Competição, Ranking e Grupos'] };
+
 function goTo(pg,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.getElementById('page-'+pg).classList.add('on');
@@ -698,28 +793,24 @@ function rendDashCharts(){
 }
 
 // ==========================================
-// MÓDULO: GINCANA DA JUVENTUDE (NOVO)
+// MÓDULO: GINCANA DA JUVENTUDE
 // ==========================================
-
-// Variáveis Globais para a Gincana
 D.gincanaGroups = [];
 D.gincanaPoints = [];
 D.gincanaYearRank = [];
 
-// Função Ativada Pelo Mutator para não interferir na Inicialização do App
 const appObserver = new MutationObserver((mutations) => {
     mutations.forEach((m) => {
         if(m.target.id === 'app' && m.target.classList.contains('on')) {
             loadGincanaData(); 
-            appObserver.disconnect(); // Desconecta após o primeiro load seguro
+            appObserver.disconnect();
         }
     });
 });
 appObserver.observe(document.getElementById('app'), {attributes: true, attributeFilter: ['class']});
 
-// Gatilho para quando clicar na página Gincana
 function onGincanaPageLoad() {
-    renderGincanaGroups(); // Atualiza Selects
+    renderGincanaGroups(); 
     renderGincanaRankings();
     renderGincanaCharts();
 }
@@ -739,9 +830,7 @@ async function loadGincanaData() {
 
         renderGincanaRankings();
         renderGincanaCharts();
-    } catch(e) { 
-        console.error("Erro ao carregar Gincana", e); 
-    }
+    } catch(e) { console.error("Erro ao carregar Gincana", e); }
 }
 
 async function addGincanaGroup() {
@@ -769,7 +858,7 @@ async function addGincanaPoints() {
     const pts = parseInt(document.getElementById('gp-pts').value);
     const rsn = document.getElementById('gp-reason').value.trim();
     
-    if(!mid || !gid || isNaN(pts) || !rsn) { toast('⚠️', 'Preencha todos os campos corretamente!'); return; }
+    if(!mid || !gid || isNaN(pts) || !rsn) { toast('⚠️', 'Preencha todos os campos!'); return; }
     
     const ptId = 'gp'+Date.now();
     const dateStr = new Date().toISOString();
@@ -778,19 +867,15 @@ async function addGincanaPoints() {
     
     try {
         toast('⏳', 'Processando Pontos...');
-        
-        // 1. Salva o histórico de ponto
         await db.collection("gincana_points").doc(ptId).set(pObj);
         D.gincanaPoints.unshift(pObj);
         
-        // 2. Atualiza Grupo
         const gIdx = D.gincanaGroups.findIndex(g => g.id === gid);
         if(gIdx >= 0) {
             D.gincanaGroups[gIdx].totalPoints += pts;
             await db.collection("gincana_groups").doc(gid).update({ totalPoints: D.gincanaGroups[gIdx].totalPoints });
         }
         
-        // 3. Atualiza Ranking Anual do Jovem
         let yrIdx = D.gincanaYearRank.findIndex(y => y.memberId === mid && y.year === year);
         if(yrIdx >= 0) {
             D.gincanaYearRank[yrIdx].totalPoints += pts;
@@ -801,124 +886,257 @@ async function addGincanaPoints() {
             await db.collection("gincana_year_rank").doc(mid+"_"+year).set(yrObj);
         }
         
-        // Refresh Visuais
         renderGincanaGroups();
         renderGincanaRankings();
         renderGincanaCharts();
         
         document.getElementById('gp-pts').value = '';
         document.getElementById('gp-reason').value = '';
-        
         toast('✅', 'Pontos validados!');
     } catch(e) { console.error(e); toast('❌', 'Erro ao registrar!'); }
 }
 
-function calcGroupRanking() {
-    return [...D.gincanaGroups].sort((a,b) => b.totalPoints - a.totalPoints);
-}
-
+function calcGroupRanking() { return [...D.gincanaGroups].sort((a,b) => b.totalPoints - a.totalPoints); }
 function calcYearRanking() {
     const year = new Date().getFullYear();
     return [...D.gincanaYearRank].filter(y => y.year === year).sort((a,b) => b.totalPoints - a.totalPoints);
 }
 
 function renderGincanaGroups() {
-    // Popula Select Grupo
     const selG = document.getElementById('gp-group');
-    if(selG) {
-        selG.innerHTML = '<option value="">Selecione o Grupo...</option>' + 
-                         D.gincanaGroups.map(g => `<option value="${g.id}">${g.name} (${g.totalPoints} pts)</option>`).join('');
-    }
-    // Popula Select Membro Dinamicamente
+    if(selG) selG.innerHTML = '<option value="">Selecione o Grupo...</option>' + D.gincanaGroups.map(g => `<option value="${g.id}">${g.name} (${g.totalPoints} pts)</option>`).join('');
     const selM = document.getElementById('gp-member');
-    if(selM) {
-        selM.innerHTML = '<option value="">Selecione o Jovem...</option>' + 
-                         D.members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
-    }
+    if(selM) selM.innerHTML = '<option value="">Selecione o Jovem...</option>' + D.members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
 }
 
 function renderGincanaRankings() {
-    const grps = calcGroupRanking();
-    const youths = calcYearRanking();
-    
-    // Lista Visual: Grupos
+    const grps = calcGroupRanking(); const youths = calcYearRanking();
     const grpEl = document.getElementById('g-rank-groups');
-    if(grpEl) {
-        grpEl.innerHTML = grps.length ? grps.map((g,i) => `
-            <div class="rrow">
-                <div class="rnum" style="color:${g.color}; font-size:18px;">${i+1}º</div>
-                <div class="rnm" style="font-weight:800;font-size:15px">${g.name}</div>
-                <div class="rv" style="color:var(--em); font-size:15px;">${g.totalPoints} pts</div>
-            </div>
-        `).join('') : '<div style="color:var(--txm)">Nenhum grupo cadastrado.</div>';
-    }
+    if(grpEl) grpEl.innerHTML = grps.length ? grps.map((g,i) => `<div class="rrow"><div class="rnum" style="color:${g.color}; font-size:18px;">${i+1}º</div><div class="rnm" style="font-weight:800;font-size:15px">${g.name}</div><div class="rv" style="color:var(--em); font-size:15px;">${g.totalPoints} pts</div></div>`).join('') : '<div style="color:var(--txm)">Nenhum grupo cadastrado.</div>';
     
-    // Lista Visual: Jovens (Top 10)
     const youthEl = document.getElementById('g-rank-youths');
-    if(youthEl) {
-        youthEl.innerHTML = youths.length ? youths.slice(0,10).map((y,i) => {
-            const m = D.members.find(mx => mx.id === y.memberId) || {name: 'Desconhecido'};
-            return `
-            <div class="rrow">
-                <div class="rnum" style="color:var(--ac);">${i+1}º</div>
-                <div class="rnm">${m.name}</div>
-                <div class="rv" style="color:var(--em)">${y.totalPoints} pts</div>
-            </div>
-            `;
-        }).join('') : '<div style="color:var(--txm)">Nenhuma pontuação registrada neste ano.</div>';
-    }
+    if(youthEl) youthEl.innerHTML = youths.length ? youths.slice(0,10).map((y,i) => {
+        const m = D.members.find(mx => mx.id === y.memberId) || {name: 'Desconhecido'};
+        return `<div class="rrow"><div class="rnum" style="color:var(--ac);">${i+1}º</div><div class="rnm">${m.name}</div><div class="rv" style="color:var(--em)">${y.totalPoints} pts</div></div>`;
+    }).join('') : '<div style="color:var(--txm)">Nenhuma pontuação registrada neste ano.</div>';
     
-    // Atualiza os Cards Superiores
-    const tGroups = D.gincanaGroups.length;
-    const tPts = D.gincanaGroups.reduce((acc, g) => acc + g.totalPoints, 0);
-    const champGroup = grps.length && grps[0].totalPoints > 0 ? grps[0].name : '-';
-    const champYouth = youths.length && youths[0].totalPoints > 0 ? (D.members.find(mx => mx.id === youths[0].memberId)?.name || '-') : '-';
-    
-    if(document.getElementById('g-tot-groups')) document.getElementById('g-tot-groups').textContent = tGroups;
-    if(document.getElementById('g-tot-pts')) document.getElementById('g-tot-pts').textContent = tPts;
-    if(document.getElementById('g-champ-group')) document.getElementById('g-champ-group').textContent = champGroup;
-    if(document.getElementById('g-top-youth')) document.getElementById('g-top-youth').textContent = champYouth;
+    if(document.getElementById('g-tot-groups')) document.getElementById('g-tot-groups').textContent = D.gincanaGroups.length;
+    if(document.getElementById('g-tot-pts')) document.getElementById('g-tot-pts').textContent = D.gincanaGroups.reduce((acc, g) => acc + g.totalPoints, 0);
+    if(document.getElementById('g-champ-group')) document.getElementById('g-champ-group').textContent = grps.length && grps[0].totalPoints > 0 ? grps[0].name : '-';
+    if(document.getElementById('g-top-youth')) document.getElementById('g-top-youth').textContent = youths.length && youths[0].totalPoints > 0 ? (D.members.find(mx => mx.id === youths[0].memberId)?.name || '-') : '-';
 }
 
 function renderGincanaCharts() {
     if(typeof Chart === 'undefined') return;
-    
-    const grps = calcGroupRanking();
-    dch('cgGroup');
-    const cgGrp = document.getElementById('cgGroup');
-    if(cgGrp && grps.length) {
-        charts.cgGroup = new Chart(cgGrp, {
-            type: 'bar',
-            data: {
-                labels: grps.map(g => g.name),
-                datasets: [{
-                    label: 'Pontos',
-                    data: grps.map(g => g.totalPoints),
-                    backgroundColor: grps.map(g => g.color),
-                    borderRadius: 8
-                }]
-            },
-            options: { ...bOpts(), plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
-        });
+    const grps = calcGroupRanking(); dch('cgGroup'); const cgGrp = document.getElementById('cgGroup');
+    if(cgGrp && grps.length) charts.cgGroup = new Chart(cgGrp, { type: 'bar', data: { labels: grps.map(g => g.name), datasets: [{ label: 'Pontos', data: grps.map(g => g.totalPoints), backgroundColor: grps.map(g => g.color), borderRadius: 8 }] }, options: { ...bOpts(), plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }});
+    const youths = calcYearRanking().slice(0,5); dch('cgYouth'); const cgYth = document.getElementById('cgYouth');
+    if(cgYth && youths.length) charts.cgYouth = new Chart(cgYth, { type: 'doughnut', data: { labels: youths.map(y => D.members.find(mx => mx.id === y.memberId)?.name || 'Desconhecido'), datasets: [{ data: youths.map(y => y.totalPoints), backgroundColor: ['#FFD700','#007BFF','#00E676','#FF0000','#0ea5e9'], borderWidth: 0 }] }, options: bOpts() });
+}
+
+// ==========================================
+// MÓDULO: TOP 10 ANUAL E CALENDÁRIO
+// ==========================================
+
+// Configura navegação do botão Eventos de forma segura (sem sobrescrever a const)
+PGCFG.events = ['Calendário', 'Eventos da Juventude'];
+
+D.events = [];
+let calMonth = new Date().getMonth();
+let calYear = new Date().getFullYear();
+
+// Observers para não sobrescrever funções nativas
+window.addEventListener('DOMContentLoaded', () => {
+    // Escuta mudanças na lista de chamadas salvas para forçar o re-render do Top 10 Anual
+    const dashboardSyncObserver = new MutationObserver(() => {
+        renderTop10AnnualFrequency();
+    });
+    const dashRankEl = document.getElementById('dash-rank');
+    if(dashRankEl) {
+        dashboardSyncObserver.observe(dashRankEl, {childList: true, subtree: true});
     }
-    
-    const youths = calcYearRanking().slice(0,5);
-    dch('cgYouth');
-    const cgYth = document.getElementById('cgYouth');
-    if(cgYth && youths.length) {
-        charts.cgYouth = new Chart(cgYth, {
-            type: 'doughnut',
-            data: {
-                labels: youths.map(y => D.members.find(mx => mx.id === y.memberId)?.name || 'Desconhecido'),
-                datasets: [{
-                    data: youths.map(y => y.totalPoints),
-                    backgroundColor: ['#FFD700','#007BFF','#00E676','#FF0000','#0ea5e9'],
-                    borderWidth: 0
-                }]
-            },
-            options: bOpts()
+
+    // Carrega eventos quando a div principal app recebe a classe .on (Login concluído)
+    const appInitObserver = new MutationObserver((mutations) => {
+        mutations.forEach(m => {
+            if(m.target.classList.contains('on')) {
+                loadEvents();
+                renderTop10AnnualFrequency();
+                appInitObserver.disconnect();
+            }
         });
+    });
+    appInitObserver.observe(document.getElementById('app'), {attributes: true, attributeFilter: ['class']});
+});
+
+function renderTop10AnnualFrequency() {
+    const currentYear = new Date().getFullYear().toString();
+    const yearSessions = D.sessions.filter(s => s.date.startsWith(currentYear));
+    const totSess = yearSessions.length;
+    const container = document.getElementById('dash-top10-annual');
+    
+    if(!container) return;
+
+    if(totSess === 0) {
+        container.innerHTML = '<div style="grid-column: 1 / -1; color:var(--txm); text-align:center; padding: 20px;">Nenhuma chamada registrada em ' + currentYear + '.</div>';
+        return;
     }
+
+    const stats = D.members.map(m => {
+        const pres = yearSessions.reduce((acc, s) => acc + (s.att[m.id] ? 1 : 0), 0);
+        const pct = Math.round((pres / totSess) * 100);
+        return { ...m, pres, pct };
+    }).sort((a, b) => b.pct - a.pct || b.pres - a.pres).slice(0, 10);
+
+    container.innerHTML = stats.map((m, i) => `
+        <div class="rrow" style="background:var(--hover); border: 1px solid var(--bd);">
+            <div class="rnum" style="color:var(--ac); width:30px; font-size:18px;">${i+1}º</div>
+            <div class="rnm">${m.name}</div>
+            <div style="flex-shrink:0; text-align:right;">
+                <div class="rv" style="color:${pcol(m.pct)}; font-size:16px;">${m.pct}%</div>
+                <div style="font-size:10px; color:var(--txm)">${m.pres} de ${totSess} presenças</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function onEventsPageLoad() {
+    renderCalendar();
+    renderEventsList();
+}
+
+async function loadEvents() {
+    if(!db) return;
+    try {
+        const snap = await db.collection("events").orderBy("date", "asc").get();
+        if(!snap.empty) {
+            D.events = snap.docs.map(doc => doc.data());
+        }
+        if(document.getElementById('page-events').classList.contains('on')) {
+            onEventsPageLoad();
+        }
+    } catch(e) {
+        console.error("Erro ao carregar eventos:", e);
+    }
+}
+
+async function addEvent() {
+    const title = document.getElementById('ev-title').value.trim();
+    const date = document.getElementById('ev-date').value;
+    const type = document.getElementById('ev-type').value;
+    const desc = document.getElementById('ev-desc').value.trim();
+
+    if(!title || !date) {
+        toast('⚠️', 'Preencha título e data do evento!');
+        return;
+    }
+
+    const evId = 'ev' + Date.now();
+    const newEvent = {
+        id: evId,
+        title,
+        date,
+        type,
+        description: desc,
+        createdAt: new Date().toISOString()
+    };
+
+    try {
+        toast('⏳', 'Salvando evento...');
+        await db.collection("events").doc(evId).set(newEvent);
+        
+        D.events.push(newEvent);
+        D.events.sort((a,b) => a.date.localeCompare(b.date));
+        
+        document.getElementById('ev-title').value = '';
+        document.getElementById('ev-desc').value = '';
+        
+        renderCalendar();
+        renderEventsList();
+        
+        toast('✅', 'Evento salvo com sucesso!');
+    } catch(e) {
+        console.error(e);
+        toast('❌', 'Erro ao salvar evento.');
+    }
+}
+
+function changeCalMonth(dir) {
+    calMonth += dir;
+    if(calMonth > 11) { calMonth = 0; calYear++; }
+    else if(calMonth < 0) { calMonth = 11; calYear--; }
+    renderCalendar();
+}
+
+function renderCalendar() {
+    const grid = document.getElementById('cal-grid');
+    const monthLabel = document.getElementById('cal-month-label');
+    if(!grid) return;
+
+    const firstDay = new Date(calYear, calMonth, 1).getDay();
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    const monthNames = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+    
+    monthLabel.textContent = `${monthNames[calMonth]} ${calYear}`;
+
+    let html = `<div class="cal-hdr">Dom</div><div class="cal-hdr">Seg</div><div class="cal-hdr">Ter</div><div class="cal-hdr">Qua</div><div class="cal-hdr">Qui</div><div class="cal-hdr">Sex</div><div class="cal-hdr">Sáb</div>`;
+
+    for(let i=0; i<firstDay; i++) {
+        html += `<div class="cal-day empty"></div>`;
+    }
+
+    // Locale ISO date adjustment workaround YYYY-MM-DD local time
+    const today = new Date();
+    const localTodayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+    for(let d=1; d<=daysInMonth; d++) {
+        const dStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const isToday = dStr === localTodayStr;
+        const dayEvents = D.events.filter(e => e.date === dStr);
+
+        let evHtml = dayEvents.map(e => `<div class="cal-ev ${e.type}" title="${e.title}"></div>`).join('');
+
+        html += `<div class="cal-day ${isToday ? 'today' : ''}">
+            <span class="cal-dt">${d}</span>
+            <div class="cal-evs">${evHtml}</div>
+        </div>`;
+    }
+    grid.innerHTML = html;
+}
+
+function renderEventsList() {
+    const list = document.getElementById('ev-list');
+    if(!list) return;
+
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+    
+    const upcoming = D.events.filter(e => e.date >= todayStr).slice(0, 10);
+
+    if(upcoming.length === 0) {
+        list.innerHTML = '<div style="color:var(--txm); text-align:center; padding:20px;">Nenhum evento futuro programado.</div>';
+        return;
+    }
+
+    const monthNamesShort = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+
+    list.innerHTML = upcoming.map(e => {
+        const [y, m, d] = e.date.split('-');
+        const mStr = monthNamesShort[parseInt(m)-1];
+        
+        return `
+        <div class="ev-item">
+            <div class="ev-date">
+                <div class="ev-d">${d}</div>
+                <div class="ev-m">${mStr}</div>
+            </div>
+            <div style="width:4px; height:30px; border-radius:2px; background:var(--${e.type==='culto'?'go':e.type==='reuniao'?'ac':e.type==='celula'?'em':'ro'})"></div>
+            <div class="ev-info">
+                <div class="ev-tit">${e.title}</div>
+                ${e.description ? `<div class="ev-desc">${e.description}</div>` : ''}
+            </div>
+        </div>`;
+    }).join('');
 }
 </script>
 </body>
