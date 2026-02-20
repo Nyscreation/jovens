@@ -115,8 +115,8 @@ select.fc{appearance:none;cursor:pointer}
 @keyframes fi{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
 
 /* BOTTOM NAV (Mobile) */
-.bottom-nav { display: flex; position: fixed; bottom: 0; left: 0; width: 100%; height: 70px; background: var(--bg2); border-top: 1px solid var(--bd); z-index: 1000; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
-.bn-item { display: flex; flex-direction: column; align-items: center; color: var(--tx2); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; width: 65px; cursor: pointer; transition: var(--tr); }
+.bottom-nav { display: flex; position: fixed; bottom: 0; left: 0; width: 100%; height: 70px; background: var(--bg2); border-top: 1px solid var(--bd); z-index: 1000; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); overflow-x: auto; }
+.bn-item { display: flex; flex-direction: column; align-items: center; color: var(--tx2); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; width: 65px; cursor: pointer; transition: var(--tr); flex-shrink: 0; padding: 0 5px; }
 .bn-item.on { color: var(--ac); }
 .bn-item .ni-ic { font-size: 24px; margin-bottom: 4px; transition: transform 0.2s; }
 .bn-item.on .ni-ic { transform: translateY(-3px); }
@@ -261,6 +261,7 @@ tbody tr:last-child td{border-bottom:none}
       <div class="ni on" onclick="goTo('dashboard',this)"><span class="ni-ic">📊</span>Dashboard</div>
       <div class="ni" onclick="goTo('members',this)"><span class="ni-ic">👥</span>Membros<span class="nbadge" id="nbadge">0</span></div>
       <div class="ni" onclick="goTo('cells',this)"><span class="ni-ic">🏠</span>Células</div>
+      <div class="ni" onclick="goTo('gincana',this); onGincanaPageLoad()"><span class="ni-ic">🏆</span>Gincana</div>
       <div class="nav-lbl">Chamada & Frequência</div>
       <div class="ni" onclick="goTo('checkin',this)"><span class="ni-ic">✅</span>Fazer Chamada</div>
       <div class="ni" onclick="goTo('history',this)"><span class="ni-ic">📋</span>Histórico</div>
@@ -296,6 +297,51 @@ tbody tr:last-child td{border-bottom:none}
         </div>
       </div>
 
+      <div id="page-gincana" class="page">
+        <div class="sg">
+            <div class="sc go"><div class="si">🏆</div><div class="sv" id="g-tot-groups">0</div><div class="sl">Total de Grupos</div></div>
+            <div class="sc gr"><div class="si">⭐</div><div class="sv" id="g-tot-pts">0</div><div class="sl">Pontos Totais da Gincana</div></div>
+            <div class="sc bl"><div class="si">🥇</div><div class="sv" id="g-top-youth">-</div><div class="sl">Jovem Destaque do Ano</div></div>
+            <div class="sc ro"><div class="si">👑</div><div class="sv" id="g-champ-group">-</div><div class="sl">Grupo Campeão</div></div>
+        </div>
+
+        <div class="g2">
+            <div class="card"><div class="ch"><div class="ct">📊 Pontos por Grupo</div></div><div class="cb"><div class="chc"><canvas id="cgGroup"></canvas></div></div></div>
+            <div class="card"><div class="ch"><div class="ct">🥇 Top 5 Jovens do Ano</div></div><div class="cb"><div class="chc"><canvas id="cgYouth"></canvas></div></div></div>
+        </div>
+
+        <div class="g2">
+            <div class="card">
+                <div class="ch"><div class="ct">➕ Novo Grupo de Gincana</div></div>
+                <div class="cb">
+                    <div class="fg"><label>Nome do Grupo</label><input class="fc" id="gg-name" placeholder="Ex: Tribo de Judá"></div>
+                    <div class="fg"><label>Cor do Grupo</label><input type="color" class="fc" id="gg-color" value="#0ea5e9" style="height:46px;padding:4px;cursor:pointer;"></div>
+                    <button class="btn-p" onclick="addGincanaGroup()">Salvar Grupo</button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="ch"><div class="ct">🎯 Adicionar Pontos</div></div>
+                <div class="cb">
+                    <div class="fg"><label>Jovem</label><select class="fc" id="gp-member"><option value="">Carregando...</option></select></div>
+                    <div class="fg"><label>Grupo</label><select class="fc" id="gp-group"><option value="">Carregando...</option></select></div>
+                    <div class="fg"><label>Pontos a Adicionar</label><input type="number" class="fc" id="gp-pts" placeholder="Ex: 50"></div>
+                    <div class="fg"><label>Motivo da Pontuação</label><input class="fc" id="gp-reason" placeholder="Ex: Venceu a prova do louvor"></div>
+                    <button class="btn-p" onclick="addGincanaPoints()">Registrar Pontos</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="g2">
+            <div class="card">
+                <div class="ch"><div class="ct">🏆 Ranking Geral de Grupos</div></div>
+                <div class="cb" style="padding:0"><div class="sl" id="g-rank-groups" style="padding:16px;max-height:400px;overflow-y:auto;"></div></div>
+            </div>
+            <div class="card">
+                <div class="ch"><div class="ct">🏅 Top 10 - Destaques do Ano</div></div>
+                <div class="cb" style="padding:0"><div class="sl" id="g-rank-youths" style="padding:16px;max-height:400px;overflow-y:auto;"></div></div>
+            </div>
+        </div>
+      </div>
       <div id="page-members" class="page">
         <div class="sb2"><span class="sic">🔍</span><input class="sin" id="msrch" placeholder="Buscar jovem..." oninput="filtMembers()"><select class="fc" style="width:auto;padding:8px" id="mfilt" onchange="filtMembers()"><option value="">Todos</option><option>Louvor</option><option>Células</option><option>Intercessão</option><option>Mídia</option><option>Evangelismo</option></select></div>
         <div class="mgrid" id="mgrid"></div>
@@ -354,6 +400,7 @@ tbody tr:last-child td{border-bottom:none}
   <nav class="bottom-nav">
     <div class="bn-item on" onclick="goTo('dashboard', null); setActiveBN(this)"><span class="ni-ic">📊</span>Início</div>
     <div class="bn-item" onclick="goTo('members', null); setActiveBN(this)"><span class="ni-ic">👥</span>Jovens</div>
+    <div class="bn-item" onclick="goTo('gincana', null); setActiveBN(this); onGincanaPageLoad()"><span class="ni-ic">🏆</span>Gincana</div>
     <div class="bn-item" onclick="goTo('checkin', null); setActiveBN(this)"><span class="ni-ic">✅</span>Chamada</div>
     <div class="bn-item" onclick="goTo('history', null); setActiveBN(this)"><span class="ni-ic">📋</span>Histórico</div>
   </nav>
@@ -474,7 +521,7 @@ function fmtD(str){if(!str)return'--/--/----'; return new Date(str+'T12:00:00').
 function fmtDs(str){if(!str)return'--/--'; return new Date(str+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})}
 function pcol(p){return p>=75?'var(--em)':p>=50?'var(--ac)':'var(--ro)'}
 
-const PGCFG={ dashboard:['Dashboard','Visão geral'], members:['Jovens','Gestão'], cells:['Células','Grupos'], checkin:['Chamada','Registre presenças'], history:['Histórico','Chamadas']};
+const PGCFG={ dashboard:['Dashboard','Visão geral'], members:['Jovens','Gestão'], cells:['Células','Grupos'], checkin:['Chamada','Registre presenças'], history:['Histórico','Chamadas'], gincana:['Gincana da Juventude', 'Competição, Ranking e Grupos'] };
 function goTo(pg,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.getElementById('page-'+pg).classList.add('on');
@@ -648,6 +695,230 @@ function rendDashCharts(){
   dch('dc2');const c2=document.getElementById('dc2');
   const byt={culto:0,reuniao:0,celula:0,evento:0};D.sessions.forEach(s=>byt[s.type]++);
   if(c2 && D.sessions.length)charts.dc2=new Chart(c2,{type:'doughnut',data:{labels:['Cultos','Reuniões','Células','Eventos'],datasets:[{data:[byt.culto,byt.reuniao,byt.celula,byt.evento],backgroundColor:['#FFD700','#007BFF','#00E676','#FF0000'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false}});
+}
+
+// ==========================================
+// MÓDULO: GINCANA DA JUVENTUDE (NOVO)
+// ==========================================
+
+// Variáveis Globais para a Gincana
+D.gincanaGroups = [];
+D.gincanaPoints = [];
+D.gincanaYearRank = [];
+
+// Função Ativada Pelo Mutator para não interferir na Inicialização do App
+const appObserver = new MutationObserver((mutations) => {
+    mutations.forEach((m) => {
+        if(m.target.id === 'app' && m.target.classList.contains('on')) {
+            loadGincanaData(); 
+            appObserver.disconnect(); // Desconecta após o primeiro load seguro
+        }
+    });
+});
+appObserver.observe(document.getElementById('app'), {attributes: true, attributeFilter: ['class']});
+
+// Gatilho para quando clicar na página Gincana
+function onGincanaPageLoad() {
+    renderGincanaGroups(); // Atualiza Selects
+    renderGincanaRankings();
+    renderGincanaCharts();
+}
+
+async function loadGincanaData() {
+    if(!db) return;
+    try {
+        const grpSnap = await db.collection("gincana_groups").get();
+        if(!grpSnap.empty) D.gincanaGroups = grpSnap.docs.map(d=>d.data());
+
+        const ptsSnap = await db.collection("gincana_points").orderBy("date", "desc").get();
+        if(!ptsSnap.empty) D.gincanaPoints = ptsSnap.docs.map(d=>d.data());
+
+        const year = new Date().getFullYear();
+        const yrSnap = await db.collection("gincana_year_rank").where("year","==",year).get();
+        if(!yrSnap.empty) D.gincanaYearRank = yrSnap.docs.map(d=>d.data());
+
+        renderGincanaRankings();
+        renderGincanaCharts();
+    } catch(e) { 
+        console.error("Erro ao carregar Gincana", e); 
+    }
+}
+
+async function addGincanaGroup() {
+    const n = document.getElementById('gg-name').value.trim();
+    const c = document.getElementById('gg-color').value;
+    if(!n) { toast('⚠️','Preencha o nome do grupo!'); return; }
+    
+    const g = { id: 'gg'+Date.now(), name: n, color: c, totalPoints: 0 };
+    try {
+        toast('⏳', 'Criando Grupo...');
+        await db.collection("gincana_groups").doc(g.id).set(g);
+        D.gincanaGroups.push(g);
+        
+        document.getElementById('gg-name').value = '';
+        renderGincanaGroups();
+        renderGincanaRankings();
+        renderGincanaCharts();
+        toast('✅', 'Grupo criado com sucesso!');
+    } catch(e) { toast('❌', 'Erro ao salvar grupo!'); console.error(e); }
+}
+
+async function addGincanaPoints() {
+    const mid = document.getElementById('gp-member').value;
+    const gid = document.getElementById('gp-group').value;
+    const pts = parseInt(document.getElementById('gp-pts').value);
+    const rsn = document.getElementById('gp-reason').value.trim();
+    
+    if(!mid || !gid || isNaN(pts) || !rsn) { toast('⚠️', 'Preencha todos os campos corretamente!'); return; }
+    
+    const ptId = 'gp'+Date.now();
+    const dateStr = new Date().toISOString();
+    const pObj = { id: ptId, memberId: mid, groupId: gid, points: pts, reason: rsn, date: dateStr };
+    const year = new Date().getFullYear();
+    
+    try {
+        toast('⏳', 'Processando Pontos...');
+        
+        // 1. Salva o histórico de ponto
+        await db.collection("gincana_points").doc(ptId).set(pObj);
+        D.gincanaPoints.unshift(pObj);
+        
+        // 2. Atualiza Grupo
+        const gIdx = D.gincanaGroups.findIndex(g => g.id === gid);
+        if(gIdx >= 0) {
+            D.gincanaGroups[gIdx].totalPoints += pts;
+            await db.collection("gincana_groups").doc(gid).update({ totalPoints: D.gincanaGroups[gIdx].totalPoints });
+        }
+        
+        // 3. Atualiza Ranking Anual do Jovem
+        let yrIdx = D.gincanaYearRank.findIndex(y => y.memberId === mid && y.year === year);
+        if(yrIdx >= 0) {
+            D.gincanaYearRank[yrIdx].totalPoints += pts;
+            await db.collection("gincana_year_rank").doc(mid+"_"+year).update({ totalPoints: D.gincanaYearRank[yrIdx].totalPoints });
+        } else {
+            const yrObj = { memberId: mid, totalPoints: pts, year: year };
+            D.gincanaYearRank.push(yrObj);
+            await db.collection("gincana_year_rank").doc(mid+"_"+year).set(yrObj);
+        }
+        
+        // Refresh Visuais
+        renderGincanaGroups();
+        renderGincanaRankings();
+        renderGincanaCharts();
+        
+        document.getElementById('gp-pts').value = '';
+        document.getElementById('gp-reason').value = '';
+        
+        toast('✅', 'Pontos validados!');
+    } catch(e) { console.error(e); toast('❌', 'Erro ao registrar!'); }
+}
+
+function calcGroupRanking() {
+    return [...D.gincanaGroups].sort((a,b) => b.totalPoints - a.totalPoints);
+}
+
+function calcYearRanking() {
+    const year = new Date().getFullYear();
+    return [...D.gincanaYearRank].filter(y => y.year === year).sort((a,b) => b.totalPoints - a.totalPoints);
+}
+
+function renderGincanaGroups() {
+    // Popula Select Grupo
+    const selG = document.getElementById('gp-group');
+    if(selG) {
+        selG.innerHTML = '<option value="">Selecione o Grupo...</option>' + 
+                         D.gincanaGroups.map(g => `<option value="${g.id}">${g.name} (${g.totalPoints} pts)</option>`).join('');
+    }
+    // Popula Select Membro Dinamicamente
+    const selM = document.getElementById('gp-member');
+    if(selM) {
+        selM.innerHTML = '<option value="">Selecione o Jovem...</option>' + 
+                         D.members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+    }
+}
+
+function renderGincanaRankings() {
+    const grps = calcGroupRanking();
+    const youths = calcYearRanking();
+    
+    // Lista Visual: Grupos
+    const grpEl = document.getElementById('g-rank-groups');
+    if(grpEl) {
+        grpEl.innerHTML = grps.length ? grps.map((g,i) => `
+            <div class="rrow">
+                <div class="rnum" style="color:${g.color}; font-size:18px;">${i+1}º</div>
+                <div class="rnm" style="font-weight:800;font-size:15px">${g.name}</div>
+                <div class="rv" style="color:var(--em); font-size:15px;">${g.totalPoints} pts</div>
+            </div>
+        `).join('') : '<div style="color:var(--txm)">Nenhum grupo cadastrado.</div>';
+    }
+    
+    // Lista Visual: Jovens (Top 10)
+    const youthEl = document.getElementById('g-rank-youths');
+    if(youthEl) {
+        youthEl.innerHTML = youths.length ? youths.slice(0,10).map((y,i) => {
+            const m = D.members.find(mx => mx.id === y.memberId) || {name: 'Desconhecido'};
+            return `
+            <div class="rrow">
+                <div class="rnum" style="color:var(--ac);">${i+1}º</div>
+                <div class="rnm">${m.name}</div>
+                <div class="rv" style="color:var(--em)">${y.totalPoints} pts</div>
+            </div>
+            `;
+        }).join('') : '<div style="color:var(--txm)">Nenhuma pontuação registrada neste ano.</div>';
+    }
+    
+    // Atualiza os Cards Superiores
+    const tGroups = D.gincanaGroups.length;
+    const tPts = D.gincanaGroups.reduce((acc, g) => acc + g.totalPoints, 0);
+    const champGroup = grps.length && grps[0].totalPoints > 0 ? grps[0].name : '-';
+    const champYouth = youths.length && youths[0].totalPoints > 0 ? (D.members.find(mx => mx.id === youths[0].memberId)?.name || '-') : '-';
+    
+    if(document.getElementById('g-tot-groups')) document.getElementById('g-tot-groups').textContent = tGroups;
+    if(document.getElementById('g-tot-pts')) document.getElementById('g-tot-pts').textContent = tPts;
+    if(document.getElementById('g-champ-group')) document.getElementById('g-champ-group').textContent = champGroup;
+    if(document.getElementById('g-top-youth')) document.getElementById('g-top-youth').textContent = champYouth;
+}
+
+function renderGincanaCharts() {
+    if(typeof Chart === 'undefined') return;
+    
+    const grps = calcGroupRanking();
+    dch('cgGroup');
+    const cgGrp = document.getElementById('cgGroup');
+    if(cgGrp && grps.length) {
+        charts.cgGroup = new Chart(cgGrp, {
+            type: 'bar',
+            data: {
+                labels: grps.map(g => g.name),
+                datasets: [{
+                    label: 'Pontos',
+                    data: grps.map(g => g.totalPoints),
+                    backgroundColor: grps.map(g => g.color),
+                    borderRadius: 8
+                }]
+            },
+            options: { ...bOpts(), plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
+    }
+    
+    const youths = calcYearRanking().slice(0,5);
+    dch('cgYouth');
+    const cgYth = document.getElementById('cgYouth');
+    if(cgYth && youths.length) {
+        charts.cgYouth = new Chart(cgYth, {
+            type: 'doughnut',
+            data: {
+                labels: youths.map(y => D.members.find(mx => mx.id === y.memberId)?.name || 'Desconhecido'),
+                datasets: [{
+                    data: youths.map(y => y.totalPoints),
+                    backgroundColor: ['#FFD700','#007BFF','#00E676','#FF0000','#0ea5e9'],
+                    borderWidth: 0
+                }]
+            },
+            options: bOpts()
+        });
+    }
 }
 </script>
 </body>
