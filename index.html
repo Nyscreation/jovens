@@ -1,1177 +1,222 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="dark">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Juventude · Sistema de Gestão</title>
 
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0a0a0f">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
 
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@500;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
-<style>
-/* ... (MANTENHA EXATAMENTE O MESMO CSS ANTERIOR AQUI) ... */
-:root{--bg:#0a0a0f;--bg2:#111118;--card:#16161f;--hover:#1e1e2a;--bd:rgba(255,255,255,.07);--bda:rgba(99,102,241,.4);--tx:#f0f0f8;--tx2:#8b8ba0;--txm:#4a4a60;--ac:#6366f1;--acs:rgba(99,102,241,.15);--acg:rgba(99,102,241,.3);--go:#f59e0b;--gos:rgba(245,158,11,.15);--em:#10b981;--ems:rgba(16,185,129,.15);--ro:#f43f5e;--ros:rgba(244,63,94,.15);--sk:#0ea5e9;--sks:rgba(14,165,233,.15);--vi:#8b5cf6;--sw:264px;--r:14px;--rs:8px;--sh:0 4px 24px rgba(0,0,0,.4);--fn:'Sora',sans-serif;--mo:'JetBrains Mono',monospace;--tr:all .2s cubic-bezier(.4,0,.2,1)}
-[data-theme="light"]{--bg:#f4f4f8;--bg2:#fff;--card:#fff;--hover:#f0f0f6;--bd:rgba(0,0,0,.07);--bda:rgba(99,102,241,.3);--tx:#0f0f1a;--tx2:#5a5a70;--txm:#9a9ab0;--sh:0 4px 24px rgba(0,0,0,.08)}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden;font-size:14px;line-height:1.6}
-#auth{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);position:relative;overflow:hidden}
-#auth::before{content:'';position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(99,102,241,.15) 0%,transparent 70%);top:-200px;right:-200px;border-radius:50%}
-#auth::after{content:'';position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(139,92,246,.1) 0%,transparent 70%);bottom:-100px;left:-100px;border-radius:50%}
-.auth-card{background:var(--card);border:1px solid var(--bd);border-radius:24px;padding:44px;width:100%;max-width:420px;position:relative;z-index:1;box-shadow:var(--sh),0 0 80px rgba(99,102,241,.08)}
-.auth-logo{text-align:center;margin-bottom:28px}
-.auth-logo-icon{width:64px;height:64px;background:linear-gradient(135deg,var(--ac),var(--vi));border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 14px;box-shadow:0 8px 32px var(--acg)}
-.auth-logo h1{font-size:22px;font-weight:700}.auth-logo p{color:var(--tx2);font-size:13px;margin-top:3px}
-.auth-tabs{display:flex;background:var(--bg);border-radius:10px;padding:4px;margin-bottom:24px;gap:4px}
-.auth-tab{flex:1;padding:8px;border:none;background:transparent;color:var(--tx2);border-radius:7px;cursor:pointer;font-family:var(--fn);font-size:13px;font-weight:500;transition:var(--tr)}
-.auth-tab.active{background:var(--card);color:var(--tx);box-shadow:0 1px 4px rgba(0,0,0,.2)}
-.fg{margin-bottom:14px}.fg label{display:block;font-size:11px;font-weight:500;color:var(--tx2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
-.fc{width:100%;padding:11px 15px;background:var(--bg);border:1px solid var(--bd);border-radius:var(--rs);color:var(--tx);font-family:var(--fn);font-size:14px;transition:var(--tr);outline:none}
-.fc:focus{border-color:var(--ac);box-shadow:0 0 0 3px var(--acs)}.fc::placeholder{color:var(--txm)}
-select.fc{appearance:none;cursor:pointer}
-.btn-p{width:100%;padding:12px;background:linear-gradient(135deg,var(--ac),var(--vi));border:none;border-radius:var(--rs);color:#fff;font-family:var(--fn);font-size:14px;font-weight:600;cursor:pointer;transition:var(--tr);box-shadow:0 4px 16px var(--acg)}
-.btn-p:hover{transform:translateY(-1px);box-shadow:0 6px 24px var(--acg)}
-.demo-hint{text-align:center;color:var(--txm);font-size:12px;margin-top:14px}.demo-hint span{color:var(--ac);cursor:pointer}
-#app{display:none}#app.on{display:flex;min-height:100vh}
-.sb{width:var(--sw);min-height:100vh;background:var(--bg2);border-right:1px solid var(--bd);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100}
-.sb-hd{padding:20px 18px 16px;border-bottom:1px solid var(--bd)}
-.sb-brand{display:flex;align-items:center;gap:11px}
-.sb-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--ac),var(--vi));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;box-shadow:0 4px 12px var(--acg)}
-.sb-brand h2{font-size:14px;font-weight:700}.sb-brand p{font-size:11px;color:var(--tx2)}
-.sb-user{padding:13px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px}
-.uav{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--em));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
-.uinfo h4{font-size:13px;font-weight:600}.uinfo p{font-size:11px;color:var(--ac)}
-.urole{margin-left:auto;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:var(--acs);color:var(--ac);text-transform:uppercase;letter-spacing:.5px}
-.sb-nav{flex:1;overflow-y:auto;padding:8px 0}
-.nav-lbl{font-size:10px;font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:1px;padding:10px 18px 3px}
-.ni{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;transition:var(--tr);color:var(--tx2);font-size:13px;font-weight:500;position:relative;margin:1px 7px;border-radius:9px}
-.ni:hover{background:var(--hover);color:var(--tx)}.ni.on{background:var(--acs);color:var(--ac)}
-.ni.on::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:17px;background:var(--ac);border-radius:0 3px 3px 0}
-.ni-ic{font-size:15px;width:19px;text-align:center;flex-shrink:0}
-.nbadge{margin-left:auto;font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px;background:var(--ro);color:#fff}
-.sb-ft{padding:12px 18px;border-top:1px solid var(--bd);display:flex;gap:7px}
-.sbbtn{flex:1;padding:8px;border-radius:var(--rs);background:var(--hover);border:none;color:var(--tx2);cursor:pointer;font-size:14px;transition:var(--tr)}.sbbtn:hover{color:var(--tx)}
-.mc{margin-left:var(--sw);flex:1;min-height:100vh;background:var(--bg)}
-.topbar{padding:17px 28px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:14px;background:var(--bg2);position:sticky;top:0;z-index:50}
-.pg-title{font-size:17px;font-weight:700}.pg-sub{font-size:12px;color:var(--tx2)}
-.topbar-actions{margin-left:auto;display:flex;align-items:center;gap:9px}
-.btn-o{padding:7px 13px;border-radius:var(--rs);background:transparent;border:1px solid var(--bd);color:var(--tx2);font-family:var(--fn);font-size:12px;cursor:pointer;transition:var(--tr);display:inline-flex;align-items:center;gap:5px}
-.btn-o:hover{border-color:var(--ac);color:var(--ac)}
-.btn-a{padding:7px 13px;border-radius:var(--rs);background:var(--ac);border:none;color:#fff;font-family:var(--fn);font-size:12px;font-weight:600;cursor:pointer;transition:var(--tr);display:inline-flex;align-items:center;gap:5px}
-.btn-a:hover{background:#5558e8;transform:translateY(-1px)}
-.btn-sm{padding:5px 10px;font-size:11px;border-radius:6px}
-.ca{padding:26px 28px}
-.page{display:none}.page.on{display:block;animation:fi .25s ease}
-@keyframes fi{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
-.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:13px;margin-bottom:22px}
-.sc{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:17px;transition:var(--tr);position:relative;overflow:hidden}
-.sc:hover{border-color:var(--bda);transform:translateY(-2px);box-shadow:var(--sh)}
-.sc::before{content:'';position:absolute;top:0;right:0;width:65px;height:65px;border-radius:50%;transform:translate(30%,-30%)}
-.sc.bl::before{background:var(--acs)}.sc.go::before{background:var(--gos)}.sc.gr::before{background:var(--ems)}.sc.ro::before{background:var(--ros)}.sc.sk::before{background:var(--sks)}
-.si{font-size:21px;margin-bottom:9px}.sv{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums}.sl{font-size:11px;color:var(--tx2);margin-top:3px}
-.sd{font-size:10px;font-weight:600;margin-top:7px;display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px}
-.sd.up{background:var(--ems);color:var(--em)}.sd.dn{background:var(--ros);color:var(--ro)}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden}
-.ch{padding:16px 20px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
-.ct{font-size:14px;font-weight:600}.csub{font-size:11px;color:var(--tx2);margin-top:2px}
-.cb{padding:20px}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
-.tw{overflow-x:auto}
-table{width:100%;border-collapse:collapse}
-thead th{padding:9px 13px;text-align:left;font-size:10px;font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--bd)}
-tbody td{padding:11px 13px;border-bottom:1px solid var(--bd);font-size:13px}
-tbody tr:last-child td{border-bottom:none}
-tbody tr:hover{background:var(--hover)}
-.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:13px}
-.mcard{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:17px;cursor:pointer;transition:var(--tr);position:relative}
-.mcard:hover{border-color:var(--bda);transform:translateY(-2px);box-shadow:var(--sh)}
-.mav{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;margin-bottom:9px}
-.mn{font-size:14px;font-weight:700;margin-bottom:3px}.mr{font-size:11px;color:var(--tx2);margin-bottom:9px}
-.tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
-.tb{background:var(--acs);color:var(--ac)}.tg{background:var(--ems);color:var(--em)}.ty{background:var(--gos);color:var(--go)}.tr{background:var(--ros);color:var(--ro)}.ts{background:var(--sks);color:var(--sk)}
-.mpts{position:absolute;top:13px;right:13px;font-size:10px;font-weight:700;color:var(--go);background:var(--gos);padding:2px 7px;border-radius:20px}
-.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:13px}
-.cc{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:17px;transition:var(--tr)}
-.cc:hover{border-color:var(--bda);box-shadow:var(--sh)}
-.cch{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:11px}
-.ccn{font-size:14px;font-weight:700}.ccb{font-size:11px;color:var(--tx2)}
-.ccc{background:var(--acs);color:var(--ac);border-radius:7px;padding:3px 9px;font-size:13px;font-weight:700}
-.cclav{width:25px;height:25px;border-radius:50%;background:linear-gradient(135deg,var(--em),var(--sk));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff}
-.ccm{display:flex;gap:9px;margin-top:9px}.ccmi{font-size:11px;color:var(--tx2)}
-.mb{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
-.mc-{background:var(--acs);color:var(--ac)}.mr-{background:var(--gos);color:var(--go)}.mce-{background:var(--ems);color:var(--em)}.me-{background:var(--ros);color:var(--ro)}
-.pftabs{display:flex;gap:7px;margin-bottom:16px;flex-wrap:wrap}
-.pftab{padding:6px 14px;border-radius:20px;border:1px solid var(--bd);background:transparent;color:var(--tx2);font-family:var(--fn);font-size:12px;font-weight:600;cursor:pointer;transition:var(--tr)}
-.pftab:hover{border-color:var(--ac);color:var(--ac)}.pftab.on{background:var(--ac);border-color:var(--ac);color:#fff}
-.plist{display:flex;flex-direction:column;gap:5px}
-.pi{display:flex;align-items:center;gap:9px;padding:10px 13px;background:var(--hover);border-radius:var(--rs);border:1px solid transparent;transition:var(--tr)}
-.pi:hover{border-color:var(--bda)}
-.pck{width:23px;height:23px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
-.pck.ok{background:var(--ems);color:var(--em)}.pck.no{background:var(--bd);color:var(--txm)}
-.pmav{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
-.pnm{flex:1;font-size:13px;font-weight:500}
-.pfq{text-align:right;min-width:46px}.pfqv{font-size:11px;font-weight:700;font-family:var(--mo)}.pfqs{font-size:9px;color:var(--txm)}
-.btg{padding:4px 10px;border-radius:15px;border:none;cursor:pointer;font-size:11px;font-weight:700;font-family:var(--fn);transition:var(--tr)}
-.btg.y{background:var(--em);color:#fff}.btg.n{background:var(--card);border:1px solid var(--bd);color:var(--tx2)}
-.btg.n:hover{background:var(--ems);color:var(--em)}
-.sl{display:flex;flex-direction:column;gap:5px}
-.si2{display:flex;align-items:center;gap:12px;padding:11px 13px;background:var(--hover);border-radius:var(--rs);border:1px solid transparent;cursor:pointer;transition:var(--tr)}
-.si2:hover{border-color:var(--bda);background:var(--card)}
-.sinfo{flex:1}.stit{font-size:13px;font-weight:600;margin-bottom:2px}
-.smeta{font-size:11px;color:var(--tx2);display:flex;gap:9px;align-items:center}
-.spct{font-size:17px;font-weight:800;font-family:var(--mo)}
-.mbar{height:3px;background:var(--bd);border-radius:2px;width:50px;overflow:hidden;margin-top:3px}
-.mbar-f{height:100%;border-radius:2px}
-.sn{text-align:center}.snv{font-size:13px;font-weight:700;font-family:var(--mo)}.snl{font-size:9px;color:var(--txm);text-transform:uppercase}
-.t10g{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
-.t10c{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:13px 16px;display:flex;align-items:center;gap:12px;transition:var(--tr);position:relative;overflow:hidden}
-.t10c:hover{transform:translateY(-2px);box-shadow:var(--sh)}
-.t10c.r1{border-color:rgba(245,158,11,.45);background:linear-gradient(135deg,var(--card),rgba(245,158,11,.04))}.t10c.r2{border-color:rgba(156,163,175,.3)}.t10c.r3{border-color:rgba(217,119,6,.3)}
-.t10rk{font-size:24px;font-weight:900;font-family:var(--mo);width:38px;text-align:center;flex-shrink:0}
-.t10rk.g{color:var(--go)}.t10rk.s{color:#9ca3af}.t10rk.b{color:#d97706}.t10rk.n{color:var(--txm)}
-.t10av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
-.t10in{flex:1;min-width:0}.t10nm{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.t10sb{font-size:10px;color:var(--tx2);margin-top:1px}
-.t10bar{height:3px;background:var(--bd);border-radius:2px;margin-top:5px;overflow:hidden}
-.t10bf{height:100%;border-radius:2px}
-.t10pct{text-align:right;flex-shrink:0}.t10pv{font-size:19px;font-weight:900;font-family:var(--mo)}.t10pl{font-size:9px;color:var(--txm)}
-.crown{position:absolute;top:7px;right:7px;font-size:13px}
-.podw{display:grid;grid-template-columns:1fr 1.1fr 1fr;gap:10px;margin-bottom:22px}
-.podc{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:17px;text-align:center;transition:var(--tr)}
-.podc.p1{border-color:rgba(245,158,11,.45);background:linear-gradient(180deg,var(--card),rgba(245,158,11,.04))}
-.podav{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;color:#fff;margin:7px auto 9px}
-.podn{font-size:13px;font-weight:700}.podm{font-size:11px;color:var(--tx2);margin:2px 0 9px}
-.podpct{font-size:28px;font-weight:900;font-family:var(--mo)}.poddt{font-size:11px;color:var(--txm);margin-top:2px}
-.pb{height:5px;background:var(--bd);border-radius:3px;overflow:hidden}.pf{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--ac),var(--vi));transition:width .5s ease}
-.pb.thick{height:9px}
-.rl{display:flex;flex-direction:column;gap:6px}
-.rrow{display:flex;align-items:center;gap:9px;padding:8px 11px;background:var(--hover);border-radius:var(--rs)}
-.rnum{font-size:13px;font-weight:800;width:20px;text-align:center;font-family:var(--mo)}
-.rnum.g{color:var(--go)}.rnum.s{color:#9ca3af}.rnum.b{color:#d97706}.rnum.n{color:var(--txm)}
-.rnm{flex:1;font-size:13px;font-weight:500}
-.rbw{width:60px;height:3px;background:var(--bd);border-radius:2px}.rb{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--ac),var(--vi))}
-.rv{font-size:11px;font-weight:700;font-family:var(--mo)}
-.cgrid{display:grid;grid-template-columns:2fr 1fr;gap:16px}
-.chc{position:relative;height:220px}
-.bdg{display:flex;flex-wrap:wrap;gap:9px}
-.bitem{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 9px;background:var(--hover);border-radius:var(--r);border:1px solid var(--bd);min-width:72px;cursor:pointer;transition:var(--tr)}
-.bitem:hover{border-color:var(--go);transform:translateY(-2px)}.bitem.e{border-color:var(--go);background:var(--gos)}
-.bic{font-size:24px}.bnm{font-size:9px;font-weight:600;text-align:center;color:var(--tx2)}.bitem.e .bnm{color:var(--go)}
-.chatl{display:flex;height:490px}
-.chatc{width:200px;border-right:1px solid var(--bd);overflow-y:auto;padding:9px}
-.chatct{display:flex;align-items:center;gap:9px;padding:8px;border-radius:7px;cursor:pointer;transition:var(--tr);margin-bottom:3px}
-.chatct:hover,.chatct.on{background:var(--acs)}
-.chatcav{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--ro),var(--vi));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
-.chatcn{font-size:12px;font-weight:500}.chatcl{font-size:10px;color:var(--tx2);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.chatm{flex:1;display:flex;flex-direction:column}
-.chatms{flex:1;overflow-y:auto;padding:13px;display:flex;flex-direction:column;gap:9px}
-.cmsg{max-width:65%}.cmsg.me{align-self:flex-end}
-.cbub{padding:8px 12px;border-radius:13px;font-size:12px;line-height:1.5}
-.cmsg:not(.me) .cbub{background:var(--hover)}.cmsg.me .cbub{background:var(--ac);color:#fff}
-.ctime{font-size:9px;color:var(--txm);margin-top:2px;padding:0 3px}.cmsg.me .ctime{text-align:right}
-.chatib{display:flex;gap:7px;padding:9px 13px;border-top:1px solid var(--bd)}
-.chatin{flex:1;padding:8px 12px;background:var(--hover);border:1px solid var(--bd);border-radius:16px;color:var(--tx);font-family:var(--fn);font-size:12px;outline:none}
-.chatin:focus{border-color:var(--ac)}
-.bsend{width:34px;height:34px;border-radius:50%;background:var(--ac);border:none;color:#fff;font-size:14px;cursor:pointer;transition:var(--tr)}.bsend:hover{background:#5558e8}
-.ann{background:var(--card);border:1px solid var(--bd);border-left:3px solid var(--ac);border-radius:var(--r);padding:13px 17px;margin-bottom:9px}
-.ann.go{border-left-color:var(--go)}.ann.ro{border-left-color:var(--ro)}
-.ant{font-size:14px;font-weight:600;margin-bottom:3px}.anb{font-size:12px;color:var(--tx2)}
-.anf{font-size:10px;color:var(--txm);margin-top:6px;display:flex;gap:7px}
-.calg{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.caldn{text-align:center;font-size:10px;font-weight:600;color:var(--txm);padding:6px 0;text-transform:uppercase}
-.cald{min-height:58px;padding:5px;border-radius:6px;border:1px solid transparent;cursor:pointer;transition:var(--tr);background:var(--hover)}
-.cald:hover{border-color:var(--ac)}.cald.today{background:var(--acs);border-color:var(--ac)}
-.caldnum{font-size:11px;font-weight:600;margin-bottom:2px}
-.calev{font-size:9px;font-weight:500;padding:1px 4px;border-radius:3px;margin-bottom:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.calev.bl{background:var(--acs);color:var(--ac)}.calev.go{background:var(--gos);color:var(--go)}.calev.gr{background:var(--ems);color:var(--em)}.calev.ro{background:var(--ros);color:var(--ro)}
-.ecard{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;transition:var(--tr)}.ecard:hover{border-color:var(--bda);box-shadow:var(--sh)}
-.eban{height:80px;display:flex;align-items:center;justify-content:center;font-size:32px}
-.eban.pu{background:linear-gradient(135deg,#4c1d95,#7c3aed)}.eban.bl{background:linear-gradient(135deg,#1e3a8a,#3b82f6)}.eban.ro{background:linear-gradient(135deg,#9f1239,#f43f5e)}.eban.go{background:linear-gradient(135deg,#78350f,#f59e0b)}
-.einfo{padding:13px}.etit{font-size:13px;font-weight:700;margin-bottom:4px}.edate{font-size:11px;color:var(--tx2);margin-bottom:9px}
-.dn{padding:11px 14px;border-radius:var(--rs);margin-bottom:6px}
-.dn.l0{background:var(--acs);border-left:3px solid var(--ac)}.dn.l1{background:var(--hover);border-left:2px solid var(--vi);margin-left:18px}.dn.l2{background:transparent;border-left:1px solid var(--bd);margin-left:36px;padding:6px 11px}
-.mo{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.72);align-items:center;justify-content:center;display:none;backdrop-filter:blur(4px)}
-.mo.on{display:flex;animation:fi .2s ease}
-.mdl{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:26px;width:100%;max-width:500px;max-height:88vh;overflow-y:auto;box-shadow:var(--sh)}
-.mhd{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}.mtit{font-size:16px;font-weight:700}
-.mclose{font-size:18px;cursor:pointer;color:var(--tx2);background:none;border:none}.mclose:hover{color:var(--tx)}
-.sb2{display:flex;align-items:center;gap:9px;padding:8px 13px;background:var(--hover);border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:16px}
-.sic{color:var(--txm);font-size:14px}
-.sin{flex:1;background:none;border:none;color:var(--tx);font-family:var(--fn);font-size:12px;outline:none}.sin::placeholder{color:var(--txm)}
-.toast{position:fixed;bottom:20px;right:20px;z-index:9999;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:11px 16px;box-shadow:var(--sh);display:flex;align-items:center;gap:9px;animation:su .3s ease;min-width:220px}
-@keyframes su{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
-.tic{font-size:16px}.tmsg{font-size:12px}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
-@media(max-width:860px){.sb{transform:translateX(-100%)}.mc{margin-left:0}.cgrid{grid-template-columns:1fr}.g2{grid-template-columns:1fr}.ca{padding:14px 16px}}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div id="auth">
   <div class="auth-card">
     <div class="auth-logo">
-      <div class="auth-logo-icon">✝️</div>
-      <h1>Juventude</h1>
-      <p>Sistema de Gestão PWA</p>
+      <div class="auth-logo-icon">🔥</div>
+      <h1 class="text-yellow">Juventude</h1>
+      <p class="text-muted">Gestão Mobile-First</p>
     </div>
     <div class="auth-tabs">
       <button class="auth-tab active" onclick="swtab('login')">Entrar</button>
       <button class="auth-tab" onclick="swtab('register')">Cadastrar</button>
     </div>
     <div id="lf">
-      <div class="fg"><label>Email</label><input type="email" class="fc" id="le" value="pastor@igreja.com"></div>
-      <div class="fg"><label>Senha</label><input type="password" class="fc" id="lp" value="123456"></div>
-      <button class="btn-p" onclick="doLogin()">Entrar</button>
-      <p class="demo-hint">Clique em <span>Entrar</span> para carregar do Banco de Dados</p>
+      <div class="fg">
+        <input type="email" class="fc" id="le" value="pastor@igreja.com" placeholder=" ">
+        <label>Email</label>
+      </div>
+      <div class="fg">
+        <input type="password" class="fc" id="lp" value="123456" placeholder=" ">
+        <label>Senha</label>
+      </div>
+      <button class="btn-p" onclick="doLogin()">Acessar Sistema</button>
     </div>
     <div id="rf" style="display:none">
-      <div class="fg"><label>Nome</label><input class="fc" id="rn" placeholder="Seu nome"></div>
-      <div class="fg"><label>Email</label><input type="email" class="fc" id="re" placeholder="seu@email.com"></div>
-      <div class="fg"><label>Perfil</label><select class="fc" id="rr"><option value="membro">Membro</option><option value="lider">Líder</option><option value="pastor">Pastor</option></select></div>
-      <div class="fg"><label>Senha</label><input type="password" class="fc" id="rp" placeholder="••••••••"></div>
-      <button class="btn-p" onclick="doRegister()">Criar conta</button>
+      <div class="fg"><input class="fc" id="rn" placeholder=" "><label>Nome</label></div>
+      <div class="fg"><input type="email" class="fc" id="re" placeholder=" "><label>Email</label></div>
+      <div class="fg">
+        <select class="fc" id="rr">
+          <option value="membro">Membro</option><option value="lider">Líder</option><option value="pastor">Pastor</option>
+        </select>
+        <label>Perfil</label>
+      </div>
+      <div class="fg"><input type="password" class="fc" id="rp" placeholder=" "><label>Senha</label></div>
+      <button class="btn-p" onclick="doRegister()">Criar Conta</button>
     </div>
   </div>
 </div>
 
 <div id="app">
+  
   <aside class="sb" id="sidebar">
-    <div class="sb-hd">
-      <div class="sb-brand"><div class="sb-icon">✝️</div><div><h2>Juventude</h2><p>Igreja Vida Nova</p></div></div>
+    <div class="ch" style="border-bottom: 1px solid var(--border-color);">
+      <h2 class="text-yellow">Juventude</h2>
     </div>
-    <div class="sb-user">
-      <div class="uav" id="uav">P</div>
-      <div class="uinfo"><h4 id="uname">Usuário</h4><p id="uemail">email</p></div>
-      <span class="urole" id="urole">Perfil</span>
-    </div>
-    <nav class="sb-nav">
-      <div class="nav-lbl">Principal</div>
-      <div class="ni on" onclick="goTo('dashboard',this)"><span class="ni-ic">📊</span>Dashboard</div>
-      <div class="ni" onclick="goTo('members',this)"><span class="ni-ic">👥</span>Membros<span class="nbadge" id="nbadge">0</span></div>
-      <div class="ni" onclick="goTo('cells',this)"><span class="ni-ic">🏠</span>Células</div>
-      <div class="nav-lbl">Chamada & Frequência</div>
-      <div class="ni" onclick="goTo('checkin',this)"><span class="ni-ic">✅</span>Fazer Chamada</div>
-      <div class="ni" onclick="goTo('history',this)"><span class="ni-ic">📋</span>Histórico</div>
-      <div class="ni" onclick="goTo('top10',this)"><span class="ni-ic">🏅</span>Top 10 Anual</div>
-      <div class="nav-lbl">Ministérios</div>
-      <div class="ni" onclick="goTo('events',this)"><span class="ni-ic">📅</span>Eventos</div>
-      <div class="ni" onclick="goTo('discipleship',this)"><span class="ni-ic">📖</span>Discipulado</div>
-      <div class="nav-lbl">Comunidade</div>
-      <div class="ni" onclick="goTo('chat',this)"><span class="ni-ic">💬</span>Chat<span class="nbadge">0</span></div>
-      <div class="ni" onclick="goTo('announcements',this)"><span class="ni-ic">📢</span>Avisos</div>
-      <div class="ni" onclick="goTo('gamification',this)"><span class="ni-ic">🏆</span>Gamificação</div>
-      <div class="nav-lbl">Admin</div>
-      <div class="ni" onclick="goTo('reports',this)"><span class="ni-ic">📈</span>Relatórios</div>
-      <div class="ni" onclick="goTo('settings',this)"><span class="ni-ic">⚙️</span>Configurações</div>
+    <nav class="sb-nav" style="padding: 16px;">
+      <div class="fg" style="margin-bottom: 10px; color: var(--text-secondary); cursor: pointer;" onclick="goTo('dashboard', this)">📊 Dashboard</div>
+      <div class="fg" style="margin-bottom: 10px; color: var(--text-secondary); cursor: pointer;" onclick="goTo('members', this)">👥 Membros</div>
+      <div class="fg" style="margin-bottom: 10px; color: var(--text-secondary); cursor: pointer;" onclick="goTo('checkin', this)">✅ Chamada</div>
+      <div class="fg" style="margin-bottom: 10px; color: var(--text-secondary); cursor: pointer;" onclick="goTo('events', this)">📅 Eventos</div>
+      <div class="fg" style="margin-bottom: 10px; color: var(--danger-red); cursor: pointer;" onclick="doLogout()">🚪 Sair</div>
     </nav>
-    <div class="sb-ft">
-      <button class="sbbtn" id="thbtn" onclick="toggleTheme()" title="Tema">🌙</button>
-      <button class="sbbtn" onclick="toast('🔔','Sem novas notificações')">🔔</button>
-      <button class="sbbtn" onclick="doLogout()" title="Sair">🚪</button>
-    </div>
   </aside>
 
   <main class="mc">
     <div class="topbar">
-      <div><div class="pg-title" id="pgtit">Dashboard</div><div class="pg-sub" id="pgsub">Visão geral da juventude</div></div>
+      <div>
+        <div class="pg-title" id="pgtit">Dashboard</div>
+        <div class="pg-sub" id="pgsub">Visão geral</div>
+      </div>
       <div class="topbar-actions">
-        <button class="btn-o" onclick="toast('📥','Exportando...')">📥 Exportar</button>
-        <button class="btn-a" onclick="openModal('mo-member')">+ Novo Membro</button>
+        <button class="btn-p btn-sm" onclick="openModal('mo-member')" style="padding: 8px 16px;">+ Novo</button>
       </div>
     </div>
+
     <div class="ca">
 
       <div id="page-dashboard" class="page on">
         <div class="sg">
-          <div class="sc bl"><div class="si">👥</div><div class="sv" id="st-tot">0</div><div class="sl">Membros cadastrados</div></div>
-          <div class="sc gr"><div class="si">✅</div><div class="sv" id="st-freq">0<span style="font-size:15px">%</span></div><div class="sl">Frequência média</div></div>
-          <div class="sc go"><div class="si">📋</div><div class="sv" id="st-sess">0</div><div class="sl">Chamadas realizadas</div></div>
-          <div class="sc ro"><div class="si">🏠</div><div class="sv">0</div><div class="sl">Células ativas</div></div>
-          <div class="sc sk"><div class="si">🌟</div><div class="sv" id="st-100">0</div><div class="sl">100% presentes</div></div>
+          <div class="sc go"><div class="si">👥</div><div class="sv" id="st-tot">0</div><div class="sl">Membros</div></div>
+          <div class="sc gr"><div class="si">✅</div><div class="sv" id="st-freq">0%</div><div class="sl">Frequência</div></div>
+          <div class="sc bl"><div class="si">📋</div><div class="sv" id="st-sess">0</div><div class="sl">Chamadas</div></div>
+          <div class="sc ro"><div class="si">🏠</div><div class="sv">0</div><div class="sl">Células</div></div>
         </div>
-        <div class="cgrid">
-          <div class="card"><div class="ch"><div><div class="ct">Frequência por Mês</div><div class="csub">Cultos · Reuniões · Células</div></div></div><div class="cb"><div class="chc"><canvas id="dc1"></canvas></div></div></div>
-          <div class="card"><div class="ch"><div class="ct">Por Tipo de Encontro</div></div><div class="cb"><div class="chc"><canvas id="dc2"></canvas></div></div></div>
+        
+        <div class="card">
+          <div class="ch"><div class="ct">Frequência por Encontro</div></div>
+          <div class="cb"><div class="chc"><canvas id="dc2"></canvas></div></div>
         </div>
-        <div class="g2" style="margin-top:16px">
-          <div class="card"><div class="ch"><div class="ct">🏅 Top 5 — Frequência Anual</div></div><div class="cb"><div class="rl" id="dash-rank"></div></div></div>
-          <div class="card"><div class="ch"><div class="ct">📋 Últimas Chamadas</div></div><div class="cb" style="padding:0"><div class="sl" id="dash-sess" style="padding:11px"></div></div></div>
+
+        <div class="card">
+          <div class="ch"><div class="ct">Últimas Chamadas</div></div>
+          <div class="cb" id="dash-sess" style="padding: 0;"></div>
         </div>
       </div>
 
       <div id="page-members" class="page">
-        <div class="sb2"><span class="sic">🔍</span><input class="sin" id="msrch" placeholder="Buscar por nome ou ministério..." oninput="filtMembers()"><select class="fc" style="width:140px;padding:5px 9px" id="mfilt" onchange="filtMembers()"><option value="">Todos</option><option>Louvor</option><option>Células</option><option>Intercessão</option><option>Mídia</option><option>Evangelismo</option></select></div>
+        <div class="fg">
+          <input class="fc" id="msrch" placeholder=" " oninput="filtMembers()">
+          <label>🔍 Buscar Jovem</label>
+        </div>
         <div class="mgrid" id="mgrid"></div>
       </div>
 
-      <div id="page-cells" class="page"><div class="cg" id="cgrid"></div></div>
-
       <div id="page-checkin" class="page">
-        <div class="g2">
-          <div class="card">
-            <div class="ch">
-              <div><div class="ct" id="ci-tit">Culto de Jovens</div><div style="margin-top:4px" id="ci-badge"><span class="mb mc-">✝️ Culto</span></div></div>
-              <button class="btn-a btn-sm" onclick="openQR()">📱 QR Code</button>
-            </div>
-            <div class="cb">
-              <div style="background:var(--hover);border-radius:var(--rs);padding:13px;margin-bottom:16px">
-                <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--txm);margin-bottom:9px">Configurar chamada</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px">
-                  <div><label style="font-size:10px;color:var(--tx2);display:block;margin-bottom:3px">Tipo</label>
-                    <select class="fc" id="ci-type" style="padding:7px 9px" onchange="updCI()">
-                      <option value="culto">✝️ Culto</option><option value="reuniao">📋 Reunião de Líderes</option><option value="celula">🏠 Célula</option><option value="evento">🎉 Evento Especial</option>
-                    </select></div>
-                  <div><label style="font-size:10px;color:var(--tx2);display:block;margin-bottom:3px">Data</label><input type="date" class="fc" id="ci-date" style="padding:7px 9px" onchange="updCI()"></div>
-                </div>
-                <div style="margin-bottom:9px"><label style="font-size:10px;color:var(--tx2);display:block;margin-bottom:3px">Descrição</label><input class="fc" id="ci-desc" placeholder="Ex: Culto de Jovens, Reunião Mensal..." style="padding:7px 9px" oninput="updCI()"></div>
-                <button class="btn-a" style="width:100%;justify-content:center" onclick="saveSession()">💾 Salvar esta chamada no Banco</button>
-              </div>
-              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px">
-                <div class="sc gr" style="padding:11px;text-align:center"><div class="sv" style="font-size:22px" id="cpres">0</div><div class="sl">Presentes</div></div>
-                <div class="sc ro" style="padding:11px;text-align:center"><div class="sv" style="font-size:22px" id="cabs">0</div><div class="sl">Ausentes</div></div>
-                <div class="sc bl" style="padding:11px;text-align:center"><div class="sv" style="font-size:22px" id="cpct">0<span style="font-size:12px">%</span></div><div class="sl">Frequência</div></div>
-              </div>
-              <div class="pb thick" style="margin-bottom:14px"><div class="pf" id="cibar" style="width:0%"></div></div>
-              <div class="sb2" style="margin-bottom:9px;padding:7px 11px"><span class="sic">🔍</span><input class="sin" id="cisrch" placeholder="Buscar membro..." oninput="rendCI()"></div>
-              <div class="plist" id="cilist"></div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="ch"><div><div class="ct">📋 Chamadas Salvas</div><div class="csub" id="sess-cnt">0 registros</div></div><button class="btn-o btn-sm" onclick="toast('📊','Excel exportado!')">📥 Excel</button></div>
-            <div class="cb" style="padding:0"><div class="sl" id="sesslist" style="padding:11px;max-height:470px;overflow-y:auto"></div></div>
-          </div>
-        </div>
-      </div>
-
-      <div id="page-history" class="page">
-        <div class="pftabs" id="htabs">
-          <button class="pftab on" onclick="filtHist('todos',this)">Todos</button>
-          <button class="pftab" onclick="filtHist('culto',this)">✝️ Cultos</button>
-          <button class="pftab" onclick="filtHist('reuniao',this)">📋 Reuniões</button>
-          <button class="pftab" onclick="filtHist('celula',this)">🏠 Células</button>
-          <button class="pftab" onclick="filtHist('evento',this)">🎉 Eventos</button>
-        </div>
-        <div class="cgrid" style="margin-bottom:16px">
-          <div class="card"><div class="ch"><div class="ct">📊 Frequência por Mês</div></div><div class="cb"><div class="chc"><canvas id="hc1"></canvas></div></div></div>
-          <div class="card"><div class="ch"><div class="ct">📈 Por Tipo de Encontro</div></div><div class="cb"><div class="chc"><canvas id="hc2"></canvas></div></div></div>
-        </div>
-        <div class="card" style="margin-bottom:16px">
-          <div class="ch"><div class="ct">📋 Todas as Chamadas</div><button class="btn-o btn-sm" onclick="toast('📄','PDF exportado!')">📄 PDF</button></div>
-          <div class="tw"><table><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Presentes</th><th>Ausentes</th><th>Freq.</th></tr></thead><tbody id="htbody"></tbody></table></div>
-        </div>
         <div class="card">
-          <div class="ch"><div class="ct">👤 Histórico Individual</div>
-            <select class="fc" style="width:210px;padding:7px 9px" id="mhsel" onchange="rendMH()"><option value="">Selecione um membro...</option></select>
-          </div>
-          <div class="cb" id="mhbody"><div style="text-align:center;padding:32px;color:var(--txm)">Selecione um membro para ver o histórico</div></div>
-        </div>
-      </div>
-
-      <div id="page-top10" class="page">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
-          <div><div style="font-size:20px;font-weight:800">🏅 Top 10 — Mais Presentes do Ano</div><div style="color:var(--tx2);font-size:12px;margin-top:3px">Ranking de frequência em todos os tipos de encontro</div></div>
-          <div style="display:flex;gap:9px;align-items:center">
-            <select class="fc" style="width:105px;padding:7px 9px" id="yrsel" onchange="rendTop10()"><option value="2026">2026</option><option value="2025">2025</option></select>
-            <button class="btn-o" onclick="toast('📄','Top 10 exportado!')">📄 Exportar PDF</button>
-          </div>
-        </div>
-        <div class="podw" id="podium"></div>
-        <div style="font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:9px">Posições 4 a 10</div>
-        <div class="t10g" id="t10grid"></div>
-        <div class="card" style="margin-top:20px">
-          <div class="ch"><div class="ct">📊 Estatísticas Anuais</div></div>
+          <div class="ch"><div class="ct text-yellow" id="ci-tit">Nova Chamada</div></div>
           <div class="cb">
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:20px" id="ystats"></div>
-            <div class="chc" style="height:175px"><canvas id="t10chart"></canvas></div>
+            <div class="fg">
+              <select class="fc" id="ci-type" onchange="updCI()">
+                <option value="culto">Culto</option>
+                <option value="celula">Célula</option>
+                <option value="evento">Evento</option>
+              </select>
+              <label>Tipo</label>
+            </div>
+            <div class="fg">
+              <input type="date" class="fc" id="ci-date" onchange="updCI()">
+              <label>Data</label>
+            </div>
+            <div class="fg">
+              <input class="fc" id="ci-desc" placeholder=" " oninput="updCI()">
+              <label>Descrição</label>
+            </div>
+            
+            <button class="btn-p" onclick="saveSession()">Salvar Chamada</button>
+            
+            <div style="margin-top: 24px; text-align: center;">
+              <h3 class="text-blue" id="cpct">0%</h3>
+              <p class="text-muted">Frequência Atual</p>
+            </div>
+            
+            <div class="fg" style="margin-top: 16px;">
+              <input class="fc" id="cisrch" placeholder=" " oninput="rendCI()">
+              <label>Filtrar lista...</label>
+            </div>
+            <div id="cilist" style="display: flex; flex-direction: column; gap: 10px;"></div>
           </div>
         </div>
       </div>
 
       <div id="page-events" class="page">
-        <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px">
-          <div>
-            <div class="g2" id="evgrid" style="margin-bottom:16px"></div>
-            <div class="card"><div class="ch"><div class="ct">📅 Calendário</div></div><div class="cb">
-              <div class="calg"><div class="caldn">Dom</div><div class="caldn">Seg</div><div class="caldn">Ter</div><div class="caldn">Qua</div><div class="caldn">Qui</div><div class="caldn">Sex</div><div class="caldn">Sáb</div></div>
-              <div class="calg" id="caldays" style="margin-top:3px"></div>
-            </div></div>
-          </div>
-          <div class="card" style="height:fit-content"><div class="ch"><div class="ct">➕ Novo Evento</div></div><div class="cb">
-            <div class="fg"><label>Nome</label><input class="fc" placeholder="Retiro da Juventude"></div>
-            <div class="fg"><label>Data</label><input type="date" class="fc"></div>
-            <div class="fg"><label>Local</label><input class="fc" placeholder="Templo central"></div>
-            <div class="fg"><label>Tipo</label><select class="fc"><option>Culto</option><option>Reunião</option><option>Retiro</option><option>Evento Especial</option></select></div>
-            <button class="btn-p" onclick="toast('📅','Em breve (integração DB)')">Criar Evento</button>
-          </div></div>
+        <div class="card"><div class="ch"><div class="ct">Calendário</div></div>
+          <div class="cb" id="evgrid">Nenhum evento futuro.</div>
         </div>
       </div>
 
-      <div id="page-discipleship" class="page">
-        <div class="card"><div class="ch"><div class="ct">📖 Árvore de Discipulado</div><button class="btn-a btn-sm" onclick="toast('✅','Adicionado!')">+ Adicionar</button></div><div class="cb" id="disc-tree"></div></div>
-      </div>
-
-      <div id="page-chat" class="page">
-        <div class="card"><div class="ch"><div class="ct">💬 Chat Interno</div></div>
-          <div class="chatl">
-            <div class="chatc" id="chatc"></div>
-            <div class="chatm">
-              <div style="padding:10px 13px;border-bottom:1px solid var(--bd);font-size:13px;font-weight:600" id="chatpeer">Geral</div>
-              <div class="chatms" id="chatms"></div>
-              <div class="chatib"><input class="chatin" id="chatin" placeholder="Digite uma mensagem..." onkeypress="if(event.key==='Enter')sendMsg()"><button class="bsend" onclick="sendMsg()">➤</button></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div id="page-announcements" class="page">
-        <div class="g2">
-          <div><h3 style="font-size:14px;font-weight:600;margin-bottom:13px">📢 Avisos Recentes</h3><div id="annlist"></div></div>
-          <div class="card" style="height:fit-content"><div class="ch"><div class="ct">📣 Novo Aviso</div></div><div class="cb">
-            <div class="fg"><label>Título</label><input class="fc" id="at"></div>
-            <div class="fg"><label>Mensagem</label><textarea class="fc" id="ab" rows="4" placeholder="Escreva..."></textarea></div>
-            <div class="fg"><label>Prioridade</label><select class="fc" id="ap"><option value="blue">Normal</option><option value="go">Importante</option><option value="ro">Urgente</option></select></div>
-            <button class="btn-p" onclick="addAnn()">Publicar</button>
-          </div></div>
-        </div>
-      </div>
-
-      <div id="page-gamification" class="page">
-        <div class="g2" style="margin-bottom:16px">
-          <div class="card"><div class="ch"><div class="ct">🏅 Conquistas</div></div><div class="cb"><div class="bdg" id="bdgrid"></div></div></div>
-          <div class="card"><div class="ch"><div class="ct">🏆 Ranking por Frequência</div></div><div class="cb"><div class="rl" id="fullrank"></div></div></div>
-        </div>
-        <div class="card"><div class="ch"><div><div class="ct">⭐ Seus Pontos</div><div class="csub">Nível: Aprendiz</div></div><div style="font-size:24px;font-weight:800;color:var(--go)">0 pts</div></div>
-          <div class="cb">
-            <div style="font-size:12px;color:var(--tx2);margin-bottom:5px">Progresso → Discípulo (1.000 pts)</div>
-            <div class="pb thick"><div class="pf" style="width:0%"></div></div>
-            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--txm);margin-top:5px"><span>0</span><span>Faltam 1.000 pts</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div id="page-reports" class="page">
-        <div class="cgrid" style="margin-bottom:16px">
-          <div class="card"><div class="ch"><div class="ct">📈 Crescimento Anual</div></div><div class="cb"><div class="chc"><canvas id="rp1"></canvas></div></div></div>
-          <div class="card"><div class="ch"><div class="ct">📊 Frequência por Célula</div></div><div class="cb"><div class="chc"><canvas id="rp2"></canvas></div></div></div>
-        </div>
-        <div class="card"><div class="ch"><div class="ct">📋 Exportar</div></div><div class="cb"><div style="display:flex;gap:9px;flex-wrap:wrap">
-          <button class="btn-o" onclick="toast('📄','Membros PDF!')">📄 Membros (PDF)</button>
-          <button class="btn-o" onclick="toast('📊','Presença Excel!')">📊 Presença (Excel)</button>
-          <button class="btn-o" onclick="toast('🏠','Células PDF!')">🏠 Células (PDF)</button>
-          <button class="btn-o" onclick="toast('🏅','Top 10 PDF!')">🏅 Top 10 (PDF)</button>
-          <button class="btn-o" onclick="toast('📅','Eventos PDF!')">📅 Eventos (PDF)</button>
-        </div></div></div>
-      </div>
-
-      <div id="page-settings" class="page">
-        <div class="g2">
-          <div class="card"><div class="ch"><div class="ct">⚙️ Igreja</div></div><div class="cb">
-            <div class="fg"><label>Nome</label><input class="fc" value="Igreja Vida Nova"></div>
-            <div class="fg"><label>Pastor Principal</label><input class="fc" value="Pastor João"></div>
-            <div class="fg"><label>Cidade</label><input class="fc" value=""></div>
-            <button class="btn-p" onclick="toast('✅','Salvo!')">Salvar</button>
-          </div></div>
-          <div class="card"><div class="ch"><div class="ct">👤 Meu Perfil</div></div><div class="cb">
-            <div style="text-align:center;margin-bottom:16px"><div class="uav" style="width:58px;height:58px;font-size:19px;margin:0 auto 9px">P</div><button class="btn-o btn-sm" onclick="toast('📷','Versão PRO')">📷 Foto</button></div>
-            <div class="fg"><label>Nome</label><input class="fc" value="Usuário"></div>
-            <div class="fg"><label>Email</label><input class="fc" value="email@igreja.com"></div>
-            <div class="fg"><label>Telefone</label><input class="fc" placeholder="(11) 9 9999-9999"></div>
-            <button class="btn-p" onclick="toast('✅','Perfil atualizado!')">Atualizar</button>
-          </div></div>
-        </div>
-      </div>
+      <div id="page-cells" class="page"><div id="cgrid"></div></div>
+      <div id="page-history" class="page"><div id="htabs"></div><div id="hc1"></div><div id="hc2"></div><table id="htbody"></table><select id="mhsel"></select><div id="mhbody"></div></div>
+      <div id="page-top10" class="page"><select id="yrsel"></select><div id="podium"></div><div id="t10grid"></div><div id="ystats"></div><canvas id="t10chart"></canvas></div>
+      <div id="page-discipleship" class="page"><div id="disc-tree"></div></div>
+      <div id="page-chat" class="page"><div id="chatc"></div><div id="chatpeer"></div><div id="chatms"></div><input id="chatin"><button onclick="sendMsg()"></button></div>
+      <div id="page-announcements" class="page"><div id="annlist"></div><input id="at"><textarea id="ab"></textarea><select id="ap"></select><button onclick="addAnn()"></button></div>
+      <div id="page-gamification" class="page"><div id="bdgrid"></div><div id="fullrank"></div></div>
+      <div id="page-reports" class="page"><canvas id="rp1"></canvas><canvas id="rp2"></canvas></div>
+      <div id="page-settings" class="page"></div>
 
     </div>
   </main>
+
+  <nav class="bottom-nav">
+    <div class="bn-item on" onclick="goTo('dashboard', this); setActiveBN(this)">
+      <span class="ni-ic">📊</span><span>Início</span>
+    </div>
+    <div class="bn-item" onclick="goTo('members', this); setActiveBN(this)">
+      <span class="ni-ic">👥</span><span>Jovens</span>
+    </div>
+    <div class="bn-item" onclick="goTo('checkin', this); setActiveBN(this)">
+      <span class="ni-ic">✅</span><span>Chamada</span>
+    </div>
+    <div class="bn-item" onclick="goTo('events', this); setActiveBN(this)">
+      <span class="ni-ic">📅</span><span>Agenda</span>
+    </div>
+  </nav>
+
 </div>
 
 <div class="mo" id="mo-member">
   <div class="mdl">
-    <div class="mhd"><div class="mtit">👤 Novo Membro</div><button class="mclose" onclick="closeModal('mo-member')">✕</button></div>
-    <div class="fg"><label>Nome completo</label><input class="fc" id="nm-name" placeholder="Nome do jovem"></div>
-    <div class="fg"><label>Data de Nascimento</label><input type="date" class="fc" id="nm-birth"></div>
-    <div class="fg"><label>Email</label><input class="fc" id="nm-email" placeholder="email@exemplo.com"></div>
-    <div class="fg"><label>Telefone</label><input class="fc" id="nm-phone" placeholder="(11) 9 9999-9999"></div>
-    <div class="fg"><label>Ministério</label><select class="fc" id="nm-min"><option>Louvor</option><option>Intercessão</option><option>Células</option><option>Mídia</option><option>Evangelismo</option><option>Dança</option></select></div>
-    <div class="fg"><label>Dons Espirituais</label><input class="fc" id="nm-gifts" placeholder="Ex: Canto, Profecia, Ensino"></div>
-    <div class="fg"><label>Observações do Líder</label><textarea class="fc" id="nm-notes" rows="2" placeholder="Notas..."></textarea></div>
-    <button class="btn-p" onclick="addMember()">Salvar no Banco de Dados</button>
-  </div>
-</div>
-<div class="mo" id="mo-qr">
-  <div class="mdl" style="max-width:330px;text-align:center">
-    <div class="mhd"><div class="mtit">📱 QR Code Check-in</div><button class="mclose" onclick="closeModal('mo-qr')">✕</button></div>
-    <div style="width:145px;height:145px;background:#fff;border-radius:11px;display:flex;align-items:center;justify-content:center;margin:0 auto 13px;font-size:85px;line-height:1">⬛</div>
-    <p style="color:var(--tx2);font-size:12px;margin-bottom:5px">Aponte a câmera para check-in automático</p>
-    <p style="font-size:11px;color:var(--txm);font-family:var(--mo)" id="qrstr">JUVENT-CULTO</p>
-    <div style="display:flex;gap:7px;justify-content:center;margin-top:13px">
-      <button class="btn-o btn-sm" onclick="toast('📋','Copiado!');closeModal('mo-qr')">📋 Copiar</button>
-      <button class="btn-o btn-sm" onclick="toast('🖨️','Imprimindo...');closeModal('mo-qr')">🖨️ Imprimir</button>
+    <div class="mhd">
+      <div class="mtit text-yellow">👤 Novo Membro</div>
+      <button class="mclose" onclick="closeModal('mo-member')">✕</button>
     </div>
+    <div class="fg"><input class="fc" id="nm-name" placeholder=" "><label>Nome Completo</label></div>
+    <div class="fg">
+      <select class="fc" id="nm-min">
+        <option>Louvor</option><option>Intercessão</option><option>Células</option>
+      </select>
+      <label>Ministério</label>
+    </div>
+    <div class="fg"><input class="fc" id="nm-phone" placeholder=" "><label>Telefone</label></div>
+    <input type="hidden" id="nm-birth">
+    <input type="hidden" id="nm-email">
+    <input type="hidden" id="nm-gifts">
+    <input type="hidden" id="nm-notes">
+    <button class="btn-p" onclick="addMember()">Salvar</button>
   </div>
 </div>
+
+<div class="mo" id="mo-qr"><div class="mdl"><button onclick="closeModal('mo-qr')">X</button><div id="qrstr"></div></div></div>
 
 <script>
-// ===================== REGISTRO DO SERVICE WORKER (PWA) =====================
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(reg => console.log('Service Worker Registrado!', reg))
-      .catch(err => console.error('Erro no Service Worker', err));
-  });
+// PEQUENO HELPER UI PARA BOTTOM NAV (Não afeta Firebase)
+function setActiveBN(element) {
+  document.querySelectorAll('.bn-item').forEach(el => el.classList.remove('on'));
+  element.classList.add('on');
 }
 
-// ===================== FIREBASE SETUP =====================
-const firebaseConfig = {
-  apiKey: "AIzaSyC_Q14h3uSifxeaVP3U-G9pFHn83OC05DQ",
-  authDomain: "jovens-86641.firebaseapp.com",
-  projectId: "jovens-86641",
-  storageBucket: "jovens-86641.firebasestorage.app",
-  messagingSenderId: "503531393581",
-  appId: "1:503531393581:web:46ea380eb36c9936c85ea4",
-  measurementId: "G-8Y7H25P8H8"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-// ===================== DATA (ZERADA) =====================
-const D = {
-  user: null,
-  members: [],
-  cells: [],
-  sessions: [],
-  live: {},
-  anns: [],
-  badges: [],
-  chatmsgs: [],
-  events: []
-};
-
-// ===================== CONSTANTS =====================
-const TICO={culto:'✝️',reuniao:'📋',celula:'🏠',evento:'🎉'};
-const TLAB={culto:'Culto',reuniao:'Reunião',celula:'Célula',evento:'Evento'};
-const TCLS={culto:'mc-',reuniao:'mr-',celula:'mce-',evento:'me-'};
-const COLS=['#6366f1','#8b5cf6','#10b981','#f59e0b','#f43f5e','#0ea5e9'];
-
-// ===================== HELPERS =====================
-function calcAtt(mid){
-  const id=mid;
-  const tot=D.sessions.length;
-  const pres=D.sessions.reduce((s,x)=>s+(x.att[id]?1:0),0);
-  return{tot,pres,pct:tot?Math.round(pres/tot*100):0};
-}
-function getRanking(){
-  return D.members.map(m=>({...m,...calcAtt(m.id)})).sort((a,b)=>b.pct-a.pct||b.pres-a.pres);
-}
-function sStat(s){
-  const vs=Object.values(s.att);
-  const p=vs.filter(Boolean).length,t=D.members.length; 
-  return{pres:p,abs:t-p,tot:t,pct:t?Math.round(p/t*100):0};
-}
-function fmtD(str){if(!str)return'--/--/----'; return new Date(str+'T12:00:00').toLocaleDateString('pt-BR')}
-function fmtDs(str){if(!str)return'--/--'; return new Date(str+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})}
-function isDark(){return document.documentElement.getAttribute('data-theme')!=='light'}
-function gc(){return isDark()?'rgba(255,255,255,.05)':'rgba(0,0,0,.06)'}
-function tc(){return isDark()?'#8b8ba0':'#5a5a70'}
-function pcol(p){return p>=75?'var(--em)':p>=50?'var(--go)':'var(--ro)'}
-
-// ===================== AUTH & FIREBASE LOAD =====================
-function swtab(t){
-  event.target.classList.add('active');
-  document.querySelectorAll('.auth-tab').forEach(x=>{if(x!==event.target)x.classList.remove('active')});
-  document.getElementById('lf').style.display=t==='login'?'':'none';
-  document.getElementById('rf').style.display=t==='register'?'':'none';
-}
-function doLogin(){
-  const em=document.getElementById('le').value||'pastor@igreja.com';
-  D.user={name:em.includes('pastor')?'Pastor João':em.split('@')[0],email:em,role:em.includes('pastor')?'Pastor':em.includes('lider')?'Líder':'Membro'};
-  launch();
-}
-function doRegister(){
-  D.user={name:document.getElementById('rn').value||'Novo Usuário',email:document.getElementById('re').value||'novo@igreja.com',role:document.getElementById('rr').value};
-  launch();
-}
-function doLogout(){
-  document.getElementById('app').style.display='none';
-  document.getElementById('auth').style.display='flex';
-}
-function launch(){
-  document.getElementById('auth').style.display='none';
-  document.getElementById('app').classList.add('on');
-  document.getElementById('app').style.display='flex';
-  const u=D.user;
-  document.getElementById('uname').textContent=u.name;
-  document.getElementById('uemail').textContent=u.email;
-  document.getElementById('urole').textContent=u.role;
-  document.getElementById('uav').textContent=u.name[0].toUpperCase();
-  document.getElementById('ci-date').value=new Date().toISOString().split('T')[0];
-  document.getElementById('ci-desc').value='Culto de Jovens';
-  
-  loadDataFromFirebase();
-}
-
-async function loadDataFromFirebase() {
-  try {
-    toast('⏳', 'Carregando banco de dados...');
-    
-    const membersSnap = await db.collection("members").get();
-    if (!membersSnap.empty) { D.members = membersSnap.docs.map(doc => doc.data()); }
-    
-    const sessionsSnap = await db.collection("sessions").orderBy("date", "desc").get();
-    if (!sessionsSnap.empty) { D.sessions = sessionsSnap.docs.map(doc => doc.data()); }
-
-    D.live = {};
-    D.members.forEach(m => { D.live[m.id] = 0; });
-    
-    document.getElementById('nbadge').textContent = D.members.length;
-    renderAll();
-    toast('✅', 'Sincronizado!');
-    
-  } catch (error) {
-    console.error("Erro no Firebase:", error);
-    toast('❌', 'Erro ao conectar. O sistema iniciará vazio.');
-    renderAll();
-  }
-}
-
-// ===================== NAVIGATION =====================
-const PGCFG={
-  dashboard:['Dashboard','Visão geral da juventude'],
-  members:['Membros','Gestão de membros e perfis'],
-  cells:['Células','Grupos e discipulado'],
-  checkin:['Fazer Chamada','Registre presenças em cultos, reuniões e células'],
-  history:['Histórico de Frequência','Todas as chamadas realizadas'],
-  top10:['🏅 Top 10 Anual','Os jovens mais presentes de todos os encontros'],
-  events:['Eventos & Agenda','Calendário e eventos da juventude'],
-  discipleship:['Discipulado','Árvore de relacionamentos de discipulado'],
-  chat:['Chat Interno','Comunicação entre líderes e membros'],
-  announcements:['Avisos','Comunicados gerais da juventude'],
-  gamification:['Gamificação','Pontos, medalhas e conquistas'],
-  reports:['Relatórios','Análises e exportações'],
-  settings:['Configurações','Configurações do sistema'],
-};
-function goTo(pg,el){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
-  document.getElementById('page-'+pg).classList.add('on');
-  if(el)el.classList.add('on');
-  const c=PGCFG[pg]||[pg,''];
-  document.getElementById('pgtit').textContent=c[0];
-  document.getElementById('pgsub').textContent=c[1];
-  if(pg==='history')setTimeout(rendHistCharts,120);
-  if(pg==='top10'){rendTop10();setTimeout(rendTop10Charts,120);}
-  if(pg==='reports')setTimeout(rendRpCharts,120);
-}
-
-// ===================== RENDER ALL =====================
-function renderAll(){
-  rendMembers(D.members);
-  rendCells();
-  updCI();
-  rendCI();
-  rendSessList();
-  rendHistTable('todos');
-  rendRankings();
-  rendEvents();
-  rendCalendar();
-  rendChat();
-  rendAnns();
-  rendBadges();
-  rendDisc();
-  fillMHSel();
-  updDashStats();
-  setTimeout(rendDashCharts,200);
-}
-
-// ===================== MEMBERS =====================
-function rendMembers(list){
-  const g=document.getElementById('mgrid');
-  if(!list.length){g.innerHTML='<div style="text-align:center;padding:48px;color:var(--txm);grid-column:1/-1">Nenhum membro encontrado. Clique em "+ Novo Membro".</div>';return;}
-  g.innerHTML=list.map(m=>{
-    const{pct,pres,tot}=calcAtt(m.id);
-    const c=pcol(pct);
-    return`<div class="mcard">
-      <div class="mpts">⭐ ${m.pts.toLocaleString()}</div>
-      <div class="mav" style="background:linear-gradient(135deg,${m.col},#8b5cf6)">${m.ini}</div>
-      <div class="mn">${m.name}</div>
-      <div class="mr">${m.role} · <span style="color:var(--ac)">${m.min}</span></div>
-      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:9px"><span class="tag tb">${m.min}</span></div>
-      <div style="font-size:11px;color:var(--tx2);margin-bottom:6px">🎁 ${m.gifts}</div>
-      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span style="color:var(--txm)">Frequência anual</span><span style="font-weight:700;color:${c}">${pct}%</span></div>
-      <div class="pb"><div class="pf" style="width:${pct}%;background:${c}"></div></div>
-      <div style="font-size:10px;color:var(--txm);margin-top:3px">${pres}/${tot} encontros</div>
-    </div>`;
-  }).join('');
-}
-function filtMembers(){
-  const q=document.getElementById('msrch').value.toLowerCase();
-  const f=document.getElementById('mfilt').value;
-  rendMembers(D.members.filter(m=>(!f||m.min===f)&&(m.name.toLowerCase().includes(q)||m.min.toLowerCase().includes(q))));
-}
-
-// ===================== CELLS =====================
-function rendCells(){
-  if(!D.cells.length){ document.getElementById('cgrid').innerHTML='<div style="color:var(--txm);padding:20px;text-align:center;grid-column:1/-1">Nenhuma célula cadastrada.</div>'; return;}
-  document.getElementById('cgrid').innerHTML=D.cells.map(c=>`
-    <div class="cc">
-      <div class="cch"><div><div class="ccn">🏠 ${c.name}</div><div class="ccb">📍 ${c.bairro}</div></div><div class="ccc">${c.members}</div></div>
-      <div style="display:flex;align-items:center;gap:7px;font-size:13px"><div class="cclav">${c.leader[0]}</div>${c.leader} <span style="font-size:10px;color:var(--txm)">(líder)</span></div>
-      <div class="ccm"><div class="ccmi">📅 ${c.day}</div><div class="ccmi">⏰ ${c.time}</div><div class="ccmi">📆 ${c.months}m ativa</div></div>
-    </div>`).join('');
-}
-
-// ===================== CHECKIN =====================
-function updCI(){
-  const tp=document.getElementById('ci-type').value;
-  const dc=document.getElementById('ci-desc').value||'Encontro';
-  const dt=document.getElementById('ci-date').value;
-  document.getElementById('ci-tit').textContent=`${dc} · ${dt?fmtD(dt):'--/--/----'}`;
-  document.getElementById('ci-badge').innerHTML=`<span class="mb ${TCLS[tp]}">${TICO[tp]} ${TLAB[tp]}</span>`;
-  document.getElementById('qrstr').textContent=`JUVENT-${(dt||'').replace(/-/g,'')}-${tp.toUpperCase()}`;
-}
-function liveCnt(){
-  const tot=D.members.length;
-  const pres=Object.values(D.live).filter(Boolean).length;
-  return{tot,pres,abs:tot-pres,pct:tot?Math.round(pres/tot*100):0};
-}
-function rendCI(){
-  const q=(document.getElementById('cisrch')?.value||'').toLowerCase();
-  const{tot,pres,abs,pct}=liveCnt();
-  document.getElementById('cpres').textContent=pres;
-  document.getElementById('cabs').textContent=abs;
-  document.getElementById('cpct').innerHTML=pct+'<span style="font-size:12px">%</span>';
-  const c=pcol(pct);
-  document.getElementById('cibar').style.cssText=`width:${pct}%;background:${c}`;
-  
-  if(!D.members.length){
-     document.getElementById('cilist').innerHTML = '<div style="color:var(--txm);text-align:center;padding:15px">Adicione membros para fazer chamada.</div>'; return;
-  }
-  
-  document.getElementById('cilist').innerHTML=D.members
-    .filter(m=>!q||m.name.toLowerCase().includes(q))
-    .map(m=>{
-      const on=!!D.live[m.id];
-      const{pct:ap,pres:pr,tot:tt}=calcAtt(m.id);
-      const ac=pcol(ap);
-      return`<div class="pi">
-        <div class="pck ${on?'ok':'no'}">${on?'✓':'–'}</div>
-        <div class="pmav" style="background:linear-gradient(135deg,${m.col},#8b5cf6)">${m.ini}</div>
-        <div class="pnm">${m.name}</div>
-        <div class="pfq"><div class="pfqv" style="color:${ac}">${ap}%</div><div class="pfqs">${pr}/${tt}</div></div>
-        <button class="btg ${on?'y':'n'}" onclick="togAtt('${m.id}')">${on?'✅ Presente':'Registrar'}</button>
-      </div>`;
-    }).join('');
-}
-function togAtt(id){
-  D.live[id]=D.live[id]?0:1;
-  rendCI();
-  const m=D.members.find(x=>x.id===id);
-  toast(D.live[id]?'✅':'❌',`${m.name}: ${D.live[id]?'Presente':'Removido'}`);
-}
-
-async function saveSession(){
-  if(D.members.length === 0) { toast('⚠️', 'Cadastre membros primeiro!'); return; }
-  
-  const tp=document.getElementById('ci-type').value;
-  const dc=document.getElementById('ci-desc').value||'Encontro';
-  const dt=document.getElementById('ci-date').value||new Date().toISOString().split('T')[0];
-  const att={};
-  D.members.forEach(m=>{att[m.id]=D.live[m.id]?1:0;});
-  
-  const sessionData = {
-    id: 's'+Date.now(),
-    type: tp,
-    desc: dc,
-    date: dt,
-    att: att
-  };
-
-  try {
-    toast('⏳', 'Salvando...');
-    await db.collection("sessions").doc(sessionData.id).set(sessionData);
-    
-    D.sessions.unshift(sessionData);
-    rendSessList();
-    updDashStats();
-    rendMembers(D.members);
-    const{pres,tot}=liveCnt();
-    toast('💾',`"${dc}" salva! ${pres}/${tot} presentes`);
-  } catch(e) {
-    console.error(e);
-    toast('❌', 'Erro ao salvar chamada!');
-  }
-}
-
-function rendSessList(){
-  const el=document.getElementById('sesslist');
-  document.getElementById('sess-cnt').textContent=D.sessions.length+' registros';
-  if(!D.sessions.length){el.innerHTML='<div style="text-align:center;padding:22px;color:var(--txm)">Nenhuma chamada salva ainda</div>';return;}
-  el.innerHTML=D.sessions.map(s=>{
-    const{pres,abs,pct}=sStat(s);
-    const c=pcol(pct);
-    return`<div class="si2" onclick="loadSess('${s.id}')">
-      <div class="sinfo">
-        <div class="stit">${s.desc}</div>
-        <div class="smeta"><span class="mb ${TCLS[s.type]}" style="font-size:10px;padding:2px 7px">${TICO[s.type]} ${TLAB[s.type]}</span><span>📅 ${fmtDs(s.date)}</span></div>
-      </div>
-      <div class="sn"><div class="snv" style="color:var(--em)">${pres}</div><div class="snl">pres</div></div>
-      <div class="sn"><div class="snv" style="color:var(--ro)">${abs}</div><div class="snl">aus</div></div>
-      <div><div class="spct" style="color:${c}">${pct}%</div><div class="mbar"><div class="mbar-f" style="width:${pct}%;background:${c}"></div></div></div>
-    </div>`;
-  }).join('');
-}
-function loadSess(id){
-  const s=D.sessions.find(x=>x.id===id);if(!s)return;
-  document.getElementById('ci-type').value=s.type;
-  document.getElementById('ci-desc').value=s.desc;
-  document.getElementById('ci-date').value=s.date;
-  D.members.forEach(m=>{D.live[m.id]=s.att[m.id]?1:0;});
-  updCI();rendCI();
-  toast('📋',`"${s.desc}" carregada para visualização`);
-}
-
-// ===================== HISTÓRICO =====================
-let hFilt='todos';
-function filtHist(t,el){
-  hFilt=t;
-  document.querySelectorAll('#htabs .pftab').forEach(b=>b.classList.remove('on'));
-  if(el)el.classList.add('on');
-  rendHistTable(t);
-}
-function rendHistTable(t){
-  const rows=(t==='todos'?D.sessions:D.sessions.filter(s=>s.type===t)).map(s=>{
-    const{pres,abs,pct}=sStat(s);const c=pcol(pct);
-    return`<tr>
-      <td style="font-family:var(--mo);font-size:11px">${fmtD(s.date)}</td>
-      <td><span class="mb ${TCLS[s.type]}" style="font-size:10px">${TICO[s.type]} ${TLAB[s.type]}</span></td>
-      <td style="font-weight:500">${s.desc}</td>
-      <td><b style="color:var(--em)">${pres}</b></td>
-      <td><b style="color:var(--ro)">${abs}</b></td>
-      <td><b style="font-family:var(--mo);color:${c}">${pct}%</b></td>
-    </tr>`;
-  }).join('');
-  document.getElementById('htbody').innerHTML=rows||'<tr><td colspan="6" style="text-align:center;color:var(--txm);padding:20px">Nenhum registro encontrado</td></tr>';
-}
-function fillMHSel(){
-  document.getElementById('mhsel').innerHTML='<option value="">Selecione um membro...</option>'+
-    D.members.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
-}
-function rendMH(){
-  const id=document.getElementById('mhsel').value;
-  if(!id){document.getElementById('mhbody').innerHTML='<div style="text-align:center;padding:32px;color:var(--txm)">Selecione um membro</div>';return;}
-  const{pct,pres,tot}=calcAtt(id);
-  const byT={culto:{p:0,t:0},reuniao:{p:0,t:0},celula:{p:0,t:0},evento:{p:0,t:0}};
-  D.sessions.forEach(s=>{byT[s.type].t++;if(s.att[id])byT[s.type].p++;});
-  const c=pcol(pct);
-  document.getElementById('mhbody').innerHTML=`
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:16px">
-      <div class="sc gr" style="padding:12px;text-align:center"><div class="sv" style="font-size:20px">${pct}%</div><div class="sl">Frequência</div></div>
-      <div class="sc bl" style="padding:12px;text-align:center"><div class="sv" style="font-size:20px">${pres}</div><div class="sl">Presenças</div></div>
-      <div class="sc ro" style="padding:12px;text-align:center"><div class="sv" style="font-size:20px">${tot-pres}</div><div class="sl">Faltas</div></div>
-      <div class="sc go" style="padding:12px;text-align:center"><div class="sv" style="font-size:20px">${tot}</div><div class="sl">Total</div></div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:16px">
-      ${['culto','reuniao','celula','evento'].map(t=>{
-        const{p,t:tt}=byT[t];const pp=tt?Math.round(p/tt*100):0;
-        return`<div style="background:var(--hover);border-radius:var(--rs);padding:10px;text-align:center">
-          <div class="mb ${TCLS[t]}" style="font-size:10px;padding:2px 6px;margin-bottom:5px;display:inline-flex">${TICO[t]} ${TLAB[t]}</div>
-          <div style="font-size:16px;font-weight:800;font-family:var(--mo)">${p}/${tt}</div>
-          <div style="font-size:11px;font-weight:700;color:${pcol(pp)}">${pp}%</div>
-        </div>`;
-      }).join('')}
-    </div>
-    <div class="tw"><table><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Presença</th></tr></thead>
-    <tbody>${D.sessions.length ? D.sessions.map(s=>`<tr>
-      <td style="font-family:var(--mo);font-size:11px">${fmtD(s.date)}</td>
-      <td><span class="mb ${TCLS[s.type]}" style="font-size:10px">${TICO[s.type]}</span></td>
-      <td>${s.desc}</td>
-      <td><b style="color:${s.att[id]?'var(--em)':'var(--ro)'}">${s.att[id]?'✅ Presente':'❌ Ausente'}</b></td>
-    </tr>`).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--txm)">Sem chamadas registradas</td></tr>'}</tbody></table></div>`;
-}
-
-// ===================== TOP 10 ANUAL =====================
-function rendTop10(){
-  const rk=getRanking();
-  const top3=rk.slice(0,3);
-  const rest=rk.slice(3,10);
-  const pOrder=[top3[1],top3[0],top3[2]];
-  const pLabels=['🥈 2º lugar','🥇 1º lugar','🥉 3º lugar'];
-
-  document.getElementById('podium').innerHTML=pOrder.map((m,i)=>{
-    if(!m)return'<div class="podc" style="display:flex;align-items:center;justify-content:center;color:var(--txm)">Vazio</div>';
-    const c=pcol(m.pct);
-    return`<div class="podc ${i===1?'p1':''}">
-      <div style="font-size:20px">${pLabels[i]}</div>
-      <div class="podav" style="background:linear-gradient(135deg,${m.col},#8b5cf6)">${m.ini}</div>
-      <div class="podn">${m.name}</div>
-      <div class="podm">${m.min}</div>
-      <div class="podpct" style="color:${i===1?'var(--go)':c}">${m.pct}%</div>
-      <div class="poddt">${m.pres}/${m.tot} encontros</div>
-      <div class="pb" style="margin-top:9px"><div class="pf" style="width:${m.pct}%;background:${c}"></div></div>
-    </div>`;
-  }).join('');
-
-  const rkNum=['g','s','b','n','n','n','n'];
-  document.getElementById('t10grid').innerHTML=rest.length ? rest.map((m,i)=>{
-    const pos=i+4;const c=pcol(m.pct);
-    return`<div class="t10c">
-      <div class="t10rk ${rkNum[i+3]}">${pos}</div>
-      <div class="t10av" style="background:linear-gradient(135deg,${m.col},#8b5cf6)">${m.ini}</div>
-      <div class="t10in">
-        <div class="t10nm">${m.name}</div>
-        <div class="t10sb">${m.min} · ${m.pres}/${m.tot} encontros</div>
-        <div class="t10bar"><div class="t10bf" style="width:${m.pct}%;background:${c}"></div></div>
-      </div>
-      <div class="t10pct"><div class="t10pv" style="color:${c}">${m.pct}%</div><div class="t10pl">frequência</div></div>
-    </div>`;
-  }).join('') : '<div style="color:var(--txm);grid-column:1/-1;text-align:center">Nenhum membro suficiente para o ranking</div>';
-
-  const totByType={culto:0,reuniao:0,celula:0,evento:0};
-  D.sessions.forEach(s=>totByType[s.type]++);
-  const sico={culto:'✝️',reuniao:'📋',celula:'🏠',evento:'🎉'};
-  const scls={culto:'bl',reuniao:'go',celula:'gr',evento:'ro'};
-  document.getElementById('ystats').innerHTML=[
-    {k:'culto',l:'Cultos'},
-    {k:'reuniao',l:'Reuniões de Líderes'},
-    {k:'celula',l:'Células'},
-    {k:'evento',l:'Eventos Especiais'},
-  ].map(({k,l})=>`<div class="sc ${scls[k]}" style="padding:13px;text-align:center">
-    <div style="font-size:22px;margin-bottom:6px">${sico[k]}</div>
-    <div class="sv" style="font-size:22px">${totByType[k]}</div>
-    <div class="sl">${l}</div>
-  </div>`).join('');
-}
-
-// ===================== RANKINGS =====================
-function rendRankings(){
-  const rk=getRanking();
-  const mx=rk[0]?.pct||100;
-  const cls=['g','s','b','n','n','n','n','n'];
-  const mkRow=(m,i)=>`<div class="rrow">
-    <div class="rnum ${cls[i]||'n'}">${['🥇','🥈','🥉'][i]||i+1}</div>
-    <div class="rnm">${m.name.split(' ').slice(0,2).join(' ')}</div>
-    <div class="rbw"><div class="rb" style="width:${Math.round(m.pct/mx*100)}%"></div></div>
-    <div class="rv" style="color:${pcol(m.pct)}">${m.pct}%</div>
-  </div>`;
-  document.getElementById('dash-rank').innerHTML=rk.length ? rk.slice(0,5).map(mkRow).join('') : '<div style="color:var(--txm);font-size:12px;padding:10px">Sem dados suficientes</div>';
-  document.getElementById('fullrank').innerHTML=rk.length ? rk.slice(0,8).map((m,i)=>`<div class="rrow">
-    <div class="rnum ${cls[i]||'n'}">${['🥇','🥈','🥉'][i]||i+1}</div>
-    <div class="rnm">${m.name}</div>
-    <div class="rbw"><div class="rb" style="width:${Math.round(m.pct/mx*100)}%"></div></div>
-    <div class="rv" style="color:${pcol(m.pct)}">${m.pct}%</div>
-  </div>`).join('') : '<div style="color:var(--txm);font-size:12px">Sem dados</div>';
-
-  document.getElementById('dash-sess').innerHTML=D.sessions.length ? D.sessions.slice(0,5).map(s=>{
-    const{pres,tot,pct}=sStat(s);const c=pcol(pct);
-    return`<div class="si2" onclick="goTo('checkin');loadSess('${s.id}')" style="margin-bottom:4px">
-      <div class="sinfo"><div class="stit">${s.desc}</div>
-        <div class="smeta"><span class="mb ${TCLS[s.type]}" style="font-size:10px;padding:2px 6px">${TICO[s.type]}</span><span>${fmtDs(s.date)}</span></div>
-      </div>
-      <div class="spct" style="color:${c};font-size:15px">${pct}%</div>
-    </div>`;
-  }).join('') : '<div style="color:var(--txm);font-size:12px;padding:11px">Nenhuma chamada feita</div>';
-}
-
-// ===================== EVENTS =====================
-function rendEvents(){
-  if(!D.events.length) { document.getElementById('evgrid').innerHTML = '<div style="color:var(--txm);grid-column:1/-1">Nenhum evento futuro cadastrado.</div>'; return; }
-  document.getElementById('evgrid').innerHTML=D.events.map(e=>`
-    <div class="ecard">
-      <div class="eban ${e.ban}">${e.em}</div>
-      <div class="einfo">
-        <div class="etit">${e.title}</div>
-        <div class="edate">📅 ${e.date}</div>
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:11px;font-weight:600;color:var(--em);background:var(--ems);padding:3px 9px;border-radius:20px">✅ ${e.n} inscritos</span>
-          <button class="btn-o btn-sm" onclick="toast('📅','Inscrito em ${e.title}!')">Inscrever</button>
-        </div>
-      </div>
-    </div>`).join('');
-}
-function rendCalendar(){
-  let h='';
-  for(let i=0;i<28;i++){
-    const d=i+1;
-    h+=`<div class="cald ${d===new Date().getDate()?'today':''}"><div class="caldnum">${d}</div></div>`;
-  }
-  document.getElementById('caldays').innerHTML=h;
-}
-
-// ===================== CHAT =====================
-function rendChat(){
-  if(!D.chatmsgs.length){ document.getElementById('chatms').innerHTML='<div style="color:var(--txm);text-align:center;margin-top:20px">Inicie uma conversa!</div>'; return;}
-  rendChatMsgs();
-}
-function rendChatMsgs(){
-  document.getElementById('chatms').innerHTML=D.chatmsgs.map(m=>`
-    <div class="cmsg ${m.me?'me':''}">
-      ${!m.me?`<div style="font-size:10px;font-weight:600;color:var(--ac);margin-bottom:3px">${m.from}</div>`:''}
-      <div class="cbub">${m.t}</div>
-      <div class="ctime">${m.ts}</div>
-    </div>`).join('');
-  const el=document.getElementById('chatms');
-  el.scrollTop=el.scrollHeight;
-}
-function sendMsg(){
-  const inp=document.getElementById('chatin');
-  if(!inp.value.trim())return;
-  D.chatmsgs.push({from:'Você',t:inp.value,ts:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),me:1});
-  inp.value='';rendChatMsgs();
-}
-
-// ===================== ANNOUNCEMENTS =====================
-function rendAnns(){
-  if(!D.anns.length){ document.getElementById('annlist').innerHTML='<div style="color:var(--txm)">Nenhum aviso publicado.</div>'; return;}
-  document.getElementById('annlist').innerHTML=D.anns.map(a=>`
-    <div class="ann ${a.pri}">
-      <div class="ant">${a.title}</div><div class="anb">${a.body}</div>
-      <div class="anf"><span>✍️ ${a.author}</span><span>·</span><span>📅 ${a.date}</span></div>
-    </div>`).join('');
-}
-function addAnn(){
-  const t=document.getElementById('at').value.trim();
-  if(!t){toast('⚠️','Preencha o título!');return;}
-  D.anns.unshift({title:t,body:document.getElementById('ab').value,pri:document.getElementById('ap').value,author:D.user?.name||'Admin',date:'Agora'});
-  rendAnns();
-  document.getElementById('at').value='';document.getElementById('ab').value='';
-  toast('📢','Aviso publicado localmente!');
-}
-
-// ===================== BADGES =====================
-function rendBadges(){
-  if(!D.badges.length) { document.getElementById('bdgrid').innerHTML = '<div style="color:var(--txm);font-size:12px">Nenhuma medalha ainda</div>'; return; }
-  document.getElementById('bdgrid').innerHTML=D.badges.map(b=>`
-    <div class="bitem ${b.e?'e':''}"><div class="bic">${b.i}</div><div class="bnm">${b.n}</div></div>`).join('');
-}
-
-// ===================== DISC =====================
-function rendDisc(){
-  document.getElementById('disc-tree').innerHTML='<div style="color:var(--txm);padding:20px;text-align:center">Nenhuma árvore configurada ainda.</div>';
-}
-
-// ===================== MEMBER ADD =====================
-async function addMember(){
-  const n=document.getElementById('nm-name').value.trim();
-  if(!n){toast('⚠️','Preencha o nome!');return;}
-  
-  const ini=n.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
-  const m = {
-    id: Date.now().toString(),
-    name: n,
-    min: document.getElementById('nm-min').value,
-    role: 'Membro',
-    gifts: document.getElementById('nm-gifts').value || '—',
-    pts: 0,
-    ini: ini,
-    col: COLS[Math.floor(Math.random()*COLS.length)]
-  };
-  
-  try {
-    toast('⏳', 'Salvando no banco...');
-    await db.collection("members").doc(m.id).set(m);
-    
-    D.members.push(m);
-    D.live[m.id]=0;
-    rendMembers(D.members);
-    fillMHSel();
-    document.getElementById('nbadge').textContent=D.members.length;
-    closeModal('mo-member');
-    toast('✅',`${n} adicionado(a)!`);
-    updDashStats();
-    rendCI(); 
-  } catch(e) {
-    console.error(e);
-    toast('❌', 'Erro ao salvar membro!');
-  }
-}
-
-// ===================== DASH STATS =====================
-function updDashStats(){
-  document.getElementById('st-tot').textContent=D.members.length;
-  document.getElementById('st-sess').textContent=D.sessions.length;
-  const rk=getRanking();
-  const perfect=rk.filter(m=>m.pct===100 && D.sessions.length > 0).length;
-  document.getElementById('st-100').textContent=perfect;
-  const avgPct=D.sessions.length?Math.round(D.sessions.reduce((s,x)=>{const{pct}=sStat(x);return s+pct;},0)/D.sessions.length):0;
-  document.getElementById('st-freq').innerHTML=avgPct+'<span style="font-size:15px">%</span>';
-}
-
-// ===================== MODALS =====================
-function openModal(id){document.getElementById(id).classList.add('on')}
-function closeModal(id){document.getElementById(id).classList.remove('on')}
-function openQR(){updCI();openModal('mo-qr')}
-document.addEventListener('click',e=>{if(e.target.classList.contains('mo'))closeModal(e.target.id)});
-
-// ===================== THEME =====================
-function toggleTheme(){
-  const n=isDark()?'light':'dark';
-  document.documentElement.setAttribute('data-theme',n);
-  document.getElementById('thbtn').textContent=n==='dark'?'🌙':'☀️';
-  const cids=['dc1','dc2','hc1','hc2','t10chart','rp1','rp2'];
-  cids.forEach(id=>{if(charts[id]){charts[id].destroy();delete charts[id];}});
-  setTimeout(rendDashCharts,100);
-}
-
-// ===================== TOAST =====================
-function toast(icon,msg){
-  const old=document.querySelector('.toast');if(old)old.remove();
-  const t=document.createElement('div');
-  t.className='toast';t.innerHTML=`<span class="tic">${icon}</span><span class="tmsg">${msg}</span>`;
-  document.body.appendChild(t);setTimeout(()=>t.remove(),3000);
-}
-
-// ===================== CHARTS =====================
-const charts={};
-function dch(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
-function bOpts(leg=false){
-  return{
-    responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:leg,labels:{color:tc(),font:{family:'Sora',size:10},boxWidth:11}}},
-    scales:{x:{grid:{color:gc()},ticks:{color:tc(),font:{family:'Sora',size:10}}},y:{grid:{color:gc()},ticks:{color:tc(),font:{family:'Sora',size:10}}}}
-  };
-}
-
-// Limpos para evitar gráficos fantasma com o banco de dados vazio
-function rendDashCharts(){
-  dch('dc1');const c1=document.getElementById('dc1');
-  if(c1 && D.sessions.length)charts.dc1=new Chart(c1,{type:'bar',data:{labels:[],datasets:[]},options:bOpts()});
-  
-  dch('dc2');const c2=document.getElementById('dc2');
-  const byt={culto:0,reuniao:0,celula:0,evento:0};D.sessions.forEach(s=>byt[s.type]++);
-  if(c2 && D.sessions.length)charts.dc2=new Chart(c2,{type:'doughnut',data:{labels:['Cultos','Reuniões','Células','Eventos'],datasets:[{data:[byt.culto,byt.reuniao,byt.celula,byt.evento],backgroundColor:['#6366f1','#f59e0b','#10b981','#f43f5e'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{color:tc(),font:{family:'Sora',size:10},boxWidth:11}}}}});
-}
-function rendHistCharts(){
-  dch('hc1');const c1=document.getElementById('hc1');
-  if(c1 && D.sessions.length)charts.hc1=new Chart(c1,{type:'line',data:{labels:[],datasets:[]},options:bOpts()});
-  dch('hc2');const c2=document.getElementById('hc2');
-  if(c2 && D.sessions.length)charts.hc2=new Chart(c2,{type:'doughnut',data:{labels:[],datasets:[]},options:bOpts()});
-}
-function rendTop10Charts(){
-  dch('t10chart');
-  const rk=getRanking().slice(0,10);
-  const c=document.getElementById('t10chart');
-  if(c && rk.length)charts.t10chart=new Chart(c,{type:'bar',data:{
-    labels:rk.map(m=>m.name.split(' ')[0]),
-    datasets:[{data:rk.map(m=>m.pct),backgroundColor:rk.map(m=>m.pct>=75?'rgba(16,185,129,.75)':m.pct>=50?'rgba(245,158,11,.75)':'rgba(244,63,94,.75)'),borderRadius:5}]
-  },options:{...bOpts(),scales:{x:{grid:{color:gc()},ticks:{color:tc()}},y:{grid:{color:gc()},ticks:{color:tc(),callback:v=>v+'%'},max:100}}}});
-}
-function rendRpCharts(){
-  dch('rp1');const c1=document.getElementById('rp1');
-  if(c1)charts.rp1=new Chart(c1,{type:'line',data:{labels:[],datasets:[]},options:bOpts()});
-  dch('rp2');const c2=document.getElementById('rp2');
-  if(c2 && D.cells.length)charts.rp2=new Chart(c2,{type:'bar',data:{labels:D.cells.map(c=>c.name),datasets:[{data:D.cells.map(c=>c.members),backgroundColor:'#6366f1',borderRadius:5}]},options:bOpts()});
-}
-
+// COLOQUE EXATAMENTE AQUI O SEU SCRIPT DO FIREBASE COMPLETO (Copie e cole do seu arquivo anterior sem mudar 1 vírgula)
+// ...
 </script>
 </body>
 </html>
