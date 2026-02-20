@@ -1,0 +1,21 @@
+{
+  "name": "Juventude Gestão",
+  "short_name": "Juventude",
+  "description": "Sistema de gestão de jovens e células",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#0a0a0f",
+  "icons": [
+    {
+      "src": "https://www.google.com/s2/favicons?sz=192&domain=firebase.google.com", 
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://www.google.com/s2/favicons?sz=512&domain=firebase.google.com",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
