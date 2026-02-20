@@ -9,13 +9,213 @@
 <meta name="theme-color" content="#000000">
 <meta name="mobile-web-app-capable" content="yes">
 
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@500;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
-<link rel="stylesheet" href="style.css">
+<style>
+/* ==========================================================================
+   DESIGN SYSTEM MOBILE-FIRST
+   ========================================================================== */
+:root {
+  --bg: #000000;
+  --bg2: #111111;
+  --card: #181818;
+  --hover: #242424;
+  --bd: #2a2a2a;
+  
+  --tx: #ffffff;
+  --tx2: #a0a0a0;
+  --txm: #777777;
+  
+  --ac: #FFD700; /* Amarelo */
+  --acs: rgba(255, 215, 0, 0.15);
+  --acg: rgba(255, 215, 0, 0.3);
+  
+  --go: #007BFF; /* Azul */
+  --gos: rgba(0, 123, 255, 0.15);
+  
+  --em: #00E676; /* Verde */
+  --ems: rgba(0, 230, 118, 0.15);
+  
+  --ro: #FF0000; /* Vermelho */
+  --ros: rgba(255, 0, 0, 0.15);
+  
+  --sk: #0ea5e9;
+  
+  --sw: 264px;
+  --r: 20px;
+  --rs: 12px;
+  --sh: 0 10px 30px rgba(0,0,0,0.8);
+  --fn: 'Sora', sans-serif;
+  --mo: 'JetBrains Mono', monospace;
+  --tr: all .3s cubic-bezier(.4,0,.2,1);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden;font-size:14px;line-height:1.6}
+
+/* AUTH ESTRUTURA */
+#auth{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);position:relative;padding:20px}
+.auth-card{background:var(--card);border:1px solid var(--bd);border-radius:28px;padding:40px 24px;width:100%;max-width:400px;position:relative;z-index:1;box-shadow:var(--sh)}
+.auth-logo{text-align:center;margin-bottom:28px}
+.auth-logo-icon{font-size:48px;margin-bottom:14px;}
+.auth-logo h1{font-size:24px;font-weight:800;color:var(--ac)}
+.auth-logo p{color:var(--tx2);font-size:13px;margin-top:3px}
+.auth-tabs{display:flex;background:var(--bg);border-radius:14px;padding:4px;margin-bottom:24px;gap:4px}
+.auth-tab{flex:1;padding:12px;border:none;background:transparent;color:var(--tx2);border-radius:10px;cursor:pointer;font-family:var(--fn);font-size:13px;font-weight:600;transition:var(--tr)}
+.auth-tab.active{background:var(--hover);color:var(--ac);}
+.fg{margin-bottom:20px}.fg label{display:block;font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px}
+.fc{width:100%;padding:14px 16px;background:var(--bg);border:1px solid var(--bd);border-radius:var(--rs);color:var(--tx);font-family:var(--fn);font-size:15px;transition:var(--tr);outline:none}
+.fc:focus{border-color:var(--ac);box-shadow:0 0 0 3px var(--acs)}.fc::placeholder{color:var(--txm)}
+select.fc{appearance:none;cursor:pointer}
+.btn-p{width:100%;padding:16px;background:var(--ac);border:none;border-radius:var(--rs);color:#000;font-family:var(--fn);font-size:15px;font-weight:800;cursor:pointer;transition:var(--tr);box-shadow:0 4px 20px var(--acg)}
+.btn-p:hover{transform:translateY(-2px);box-shadow:0 8px 25px var(--acg)}
+.btn-p:active{transform:translateY(0)}
+.demo-hint{text-align:center;color:var(--txm);font-size:12px;margin-top:20px}.demo-hint span{color:var(--ac);cursor:pointer;font-weight:600}
+
+/* APP ESTRUTURA */
+#app{display:none}
+#app.on{display:flex;min-height:100vh}
+
+/* SIDEBAR (Desktop Only) */
+.sb{width:var(--sw);min-height:100vh;background:var(--bg2);border-right:1px solid var(--bd);display:none;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100}
+.sb-hd{padding:24px 20px;border-bottom:1px solid var(--bd)}
+.sb-brand{display:flex;align-items:center;gap:12px}
+.sb-icon{font-size:24px;flex-shrink:0;}
+.sb-brand h2{font-size:16px;font-weight:800;color:var(--ac)}.sb-brand p{font-size:11px;color:var(--tx2)}
+.sb-user{padding:16px 20px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:12px}
+.uav{width:40px;height:40px;border-radius:50%;background:var(--ac);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#000;flex-shrink:0}
+.uinfo h4{font-size:14px;font-weight:700}.uinfo p{font-size:11px;color:var(--go)}
+.urole{margin-left:auto;font-size:9px;font-weight:800;padding:4px 8px;border-radius:20px;background:var(--gos);color:var(--go);text-transform:uppercase;letter-spacing:.5px}
+.sb-nav{flex:1;overflow-y:auto;padding:12px 0}
+.nav-lbl{font-size:10px;font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:1px;padding:16px 20px 8px}
+.ni{display:flex;align-items:center;gap:12px;padding:12px 20px;cursor:pointer;transition:var(--tr);color:var(--tx2);font-size:14px;font-weight:600;position:relative;margin:2px 10px;border-radius:12px}
+.ni:hover{background:var(--hover);color:var(--tx)}.ni.on{background:var(--acs);color:var(--ac)}
+.ni.on::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:4px;height:20px;background:var(--ac);border-radius:0 4px 4px 0}
+.ni-ic{font-size:18px;width:24px;text-align:center;flex-shrink:0}
+.nbadge{margin-left:auto;font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;background:var(--ro);color:#fff}
+.sb-ft{padding:16px 20px;border-top:1px solid var(--bd);display:flex;gap:8px}
+.sbbtn{flex:1;padding:12px;border-radius:var(--rs);background:var(--hover);border:none;color:var(--tx2);cursor:pointer;font-size:16px;transition:var(--tr)}.sbbtn:hover{color:var(--tx);background:var(--bd)}
+
+/* MAIN AREA */
+.mc{flex:1;min-height:100vh;background:var(--bg);padding-bottom:80px;} 
+.topbar{padding:20px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:14px;background:rgba(17,17,17,0.8);backdrop-filter:blur(10px);position:sticky;top:0;z-index:50}
+.pg-title{font-size:22px;font-weight:800;color:var(--tx)}.pg-sub{font-size:13px;color:var(--tx2)}
+.topbar-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
+.btn-o{padding:10px 16px;border-radius:var(--rs);background:transparent;border:1px solid var(--bd);color:var(--tx);font-family:var(--fn);font-size:13px;font-weight:600;cursor:pointer;transition:var(--tr);display:inline-flex;align-items:center;gap:6px}
+.btn-o:hover{border-color:var(--go);color:var(--go)}
+.btn-a{padding:10px 16px;border-radius:var(--rs);background:var(--go);border:none;color:#fff;font-family:var(--fn);font-size:13px;font-weight:700;cursor:pointer;transition:var(--tr);display:inline-flex;align-items:center;gap:6px}
+.btn-a:hover{background:#0066cc;transform:translateY(-2px)}
+.btn-sm{padding:8px 12px;font-size:12px;border-radius:8px}
+.ca{padding:20px}
+.page{display:none}.page.on{display:block;animation:fi .3s ease}
+@keyframes fi{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+
+/* BOTTOM NAV (Mobile) */
+.bottom-nav { display: flex; position: fixed; bottom: 0; left: 0; width: 100%; height: 70px; background: var(--bg2); border-top: 1px solid var(--bd); z-index: 1000; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
+.bn-item { display: flex; flex-direction: column; align-items: center; color: var(--tx2); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; width: 65px; cursor: pointer; transition: var(--tr); }
+.bn-item.on { color: var(--ac); }
+.bn-item .ni-ic { font-size: 24px; margin-bottom: 4px; transition: transform 0.2s; }
+.bn-item.on .ni-ic { transform: translateY(-3px); }
+
+/* STAT CARDS & GERAL */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.sc{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:20px;transition:var(--tr);position:relative;overflow:hidden}
+.sc.bl{border-bottom: 4px solid var(--go);}
+.sc.go{border-bottom: 4px solid var(--ac);}
+.sc.gr{border-bottom: 4px solid var(--em);}
+.sc.ro{border-bottom: 4px solid var(--ro);}
+.sc.sk{border-bottom: 4px solid var(--sk);}
+.si{font-size:28px;margin-bottom:12px}.sv{font-size:32px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--tx)}.sl{font-size:12px;font-weight:600;color:var(--tx2);margin-top:4px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;margin-bottom:20px}
+.ch{padding:20px 24px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.ct{font-size:16px;font-weight:800;color:var(--tx)}.csub{font-size:12px;color:var(--tx2);margin-top:4px}
+.cb{padding:24px}
+.g2{display:grid;grid-template-columns:1fr;gap:20px}
+.tw{overflow-x:auto; -webkit-overflow-scrolling: touch;}
+table{width:100%;border-collapse:collapse; min-width: 500px;}
+thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--txm);text-transform:uppercase;border-bottom:1px solid var(--bd)}
+tbody td{padding:16px;border-bottom:1px solid var(--bd);font-size:14px;font-weight:500;}
+tbody tr:last-child td{border-bottom:none}
+
+/* MEMBERS LIST */
+.mgrid{display:grid;grid-template-columns:1fr;gap:16px}
+.mcard{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:20px;cursor:pointer;position:relative}
+.mav{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#000;margin-bottom:12px;background:var(--ac) !important;}
+.mn{font-size:16px;font-weight:800;margin-bottom:4px;color:var(--tx)}.mr{font-size:13px;color:var(--tx2);margin-bottom:12px}
+.tag{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:var(--hover);color:var(--tx)}
+.mpts{position:absolute;top:16px;right:16px;font-size:12px;font-weight:800;color:var(--bg);background:var(--ac);padding:4px 10px;border-radius:20px}
+
+/* CELLS LIST */
+.cg{display:grid;grid-template-columns:1fr;gap:16px}
+.cc{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:20px}
+.ccn{font-size:16px;font-weight:800;color:var(--tx)}
+
+/* CHECKIN */
+.mb{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.mc-{background:var(--gos);color:var(--go)}.mr-{background:var(--acs);color:var(--ac)}.mce-{background:var(--ems);color:var(--em)}.me-{background:var(--ros);color:var(--ro)}
+.pftabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;overflow-x:auto;padding-bottom:5px;}
+.pftab{padding:8px 16px;border-radius:24px;border:1px solid var(--bd);background:transparent;color:var(--tx2);font-family:var(--fn);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.pftab.on{background:var(--tx);border-color:var(--tx);color:var(--bg)}
+.plist{display:flex;flex-direction:column;gap:8px}
+.pi{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--hover);border-radius:var(--rs);border:1px solid transparent}
+.pck{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+.pck.ok{background:var(--em);color:var(--bg)}.pck.no{background:var(--bd);color:var(--txm)}
+.pmav{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#000;flex-shrink:0;background:var(--ac) !important;}
+.pnm{flex:1;font-size:15px;font-weight:700;color:var(--tx)}
+.pfq{text-align:right;min-width:50px}.pfqv{font-size:13px;font-weight:800;font-family:var(--mo)}.pfqs{font-size:10px;font-weight:600;color:var(--txm)}
+.btg{padding:8px 14px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:800;font-family:var(--fn)}
+.btg.y{background:var(--em);color:var(--bg)}.btg.n{background:var(--bd);color:var(--tx)}
+.sl{display:flex;flex-direction:column;gap:8px}
+.si2{display:flex;align-items:center;gap:16px;padding:16px;background:var(--hover);border-radius:var(--rs);border:1px solid transparent;cursor:pointer;}
+.sinfo{flex:1}.stit{font-size:15px;font-weight:800;margin-bottom:6px;color:var(--tx)}
+.smeta{font-size:12px;color:var(--tx2);display:flex;gap:12px;align-items:center}
+.spct{font-size:20px;font-weight:800;font-family:var(--mo)}
+.mbar{height:4px;background:var(--bd);border-radius:2px;width:60px;overflow:hidden;margin-top:6px}
+.mbar-f{height:100%;border-radius:2px}
+.sn{text-align:center}.snv{font-size:16px;font-weight:800;font-family:var(--mo)}.snl{font-size:10px;font-weight:700;color:var(--txm);text-transform:uppercase}
+.pb{height:6px;background:var(--bd);border-radius:3px;overflow:hidden}.pf{height:100%;border-radius:3px;background:var(--go);transition:width .5s ease}
+.pb.thick{height:12px}
+.rl{display:flex;flex-direction:column;gap:8px}
+.rrow{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--hover);border-radius:var(--rs)}
+.rnum{font-size:16px;font-weight:800;width:24px;text-align:center;font-family:var(--mo)}
+.rnm{flex:1;font-size:14px;font-weight:700;color:var(--tx)}
+.rbw{width:80px;height:4px;background:var(--bd);border-radius:2px}.rb{height:100%;border-radius:2px;background:var(--go)}
+.rv{font-size:13px;font-weight:800;font-family:var(--mo)}
+.cgrid{display:grid;grid-template-columns:1fr;gap:20px}
+.chc{position:relative;height:250px}
+
+/* MODAL & SEARCH & TOAST */
+.mo{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.9);align-items:flex-end;justify-content:center;display:none;backdrop-filter:blur(5px)}
+.mo.on{display:flex;}
+.mdl{background:var(--card);border:1px solid var(--bd);border-radius:28px 28px 0 0;padding:30px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:var(--sh); animation: slideUp .3s ease;}
+@keyframes slideUp { from {transform: translateY(100%)} to {transform: translateY(0)} }
+.mhd{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}.mtit{font-size:20px;font-weight:800;color:var(--tx)}
+.mclose{font-size:20px;font-weight:800;cursor:pointer;color:var(--tx2);background:var(--hover);border:none; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center;}
+.sb2{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--hover);border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:20px}
+.sic{color:var(--txm);font-size:18px}
+.sin{flex:1;background:none;border:none;color:var(--tx);font-family:var(--fn);font-size:15px;outline:none;font-weight:500;}.sin::placeholder{color:var(--txm)}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--ac);color:#000;border-radius:30px;padding:14px 24px;box-shadow:var(--sh);display:flex;align-items:center;gap:12px;animation:su .3s ease;min-width:260px; font-weight:800;}
+@keyframes su{from{transform:translate(-50%, 20px);opacity:0}to{transform:translate(-50%, 0);opacity:1}}
+.tic{font-size:20px}.tmsg{font-size:14px}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+
+@media(min-width:860px){
+  .bottom-nav { display:none; }
+  .sb{display:flex;}
+  .mc{margin-left:var(--sw); padding-bottom: 0;}
+  .cgrid{grid-template-columns:2fr 1fr;}
+  .g2{grid-template-columns:1fr 1fr;}
+  .mgrid{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));}
+  .mo{align-items:center;}
+  .mdl{border-radius:24px;}
+  .toast { bottom: 30px; left: auto; right: 30px; transform: none; animation: suDesk .3s ease;}
+  @keyframes suDesk{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+}
+</style>
 </head>
 <body>
 
@@ -23,200 +223,432 @@
   <div class="auth-card">
     <div class="auth-logo">
       <div class="auth-logo-icon">🔥</div>
-      <h1 class="text-yellow">Juventude</h1>
-      <p class="text-muted">Gestão Mobile-First</p>
+      <h1>Juventude App</h1>
+      <p>Gestão Mobile-First</p>
     </div>
     <div class="auth-tabs">
       <button class="auth-tab active" onclick="swtab('login')">Entrar</button>
       <button class="auth-tab" onclick="swtab('register')">Cadastrar</button>
     </div>
     <div id="lf">
-      <div class="fg">
-        <input type="email" class="fc" id="le" value="pastor@igreja.com" placeholder=" ">
-        <label>Email</label>
-      </div>
-      <div class="fg">
-        <input type="password" class="fc" id="lp" value="123456" placeholder=" ">
-        <label>Senha</label>
-      </div>
+      <div class="fg"><label>Email</label><input type="email" class="fc" id="le" value="pastor@igreja.com"></div>
+      <div class="fg"><label>Senha</label><input type="password" class="fc" id="lp" value="123456"></div>
       <button class="btn-p" onclick="doLogin()">Acessar Sistema</button>
+      <p class="demo-hint">Clique no botão acima para conectar ao BD</p>
     </div>
     <div id="rf" style="display:none">
-      <div class="fg"><input class="fc" id="rn" placeholder=" "><label>Nome</label></div>
-      <div class="fg"><input type="email" class="fc" id="re" placeholder=" "><label>Email</label></div>
-      <div class="fg">
-        <select class="fc" id="rr">
-          <option value="membro">Membro</option><option value="lider">Líder</option><option value="pastor">Pastor</option>
-        </select>
-        <label>Perfil</label>
-      </div>
-      <div class="fg"><input type="password" class="fc" id="rp" placeholder=" "><label>Senha</label></div>
-      <button class="btn-p" onclick="doRegister()">Criar Conta</button>
+      <div class="fg"><label>Nome</label><input class="fc" id="rn" placeholder="Seu nome"></div>
+      <div class="fg"><label>Email</label><input type="email" class="fc" id="re" placeholder="seu@email.com"></div>
+      <div class="fg"><label>Perfil</label><select class="fc" id="rr"><option value="membro">Membro</option><option value="lider">Líder</option><option value="pastor">Pastor</option></select></div>
+      <div class="fg"><label>Senha</label><input type="password" class="fc" id="rp" placeholder="••••••••"></div>
+      <button class="btn-p" onclick="doRegister()">Criar conta</button>
     </div>
   </div>
 </div>
 
 <div id="app">
-  
   <aside class="sb" id="sidebar">
-    <div class="ch" style="border-bottom: 1px solid var(--border-color);">
-      <h2 class="text-yellow">Juventude</h2>
+    <div class="sb-hd">
+      <div class="sb-brand"><div class="sb-icon">🔥</div><div><h2>Juventude App</h2><p>Igreja Vida Nova</p></div></div>
     </div>
-    <nav class="sb-nav" style="padding: 16px;">
-      <div class="fg" style="margin-bottom: 10px; color: var(--text-secondary); cursor: pointer;" onclick="goTo('dashboard', this)">📊 Dashboard</div>
-      <div class="fg" style="margin-bottom: 10px; color: var(--text-secondary); cursor: pointer;" onclick="goTo('members', this)">👥 Membros</div>
-      <div class="fg" style="margin-bottom: 10px; color: var(--text-secondary); cursor: pointer;" onclick="goTo('checkin', this)">✅ Chamada</div>
-      <div class="fg" style="margin-bottom: 10px; color: var(--text-secondary); cursor: pointer;" onclick="goTo('events', this)">📅 Eventos</div>
-      <div class="fg" style="margin-bottom: 10px; color: var(--danger-red); cursor: pointer;" onclick="doLogout()">🚪 Sair</div>
+    <div class="sb-user">
+      <div class="uav" id="uav">P</div>
+      <div class="uinfo"><h4 id="uname">Usuário</h4><p id="uemail">email</p></div>
+      <span class="urole" id="urole">Perfil</span>
+    </div>
+    <nav class="sb-nav">
+      <div class="nav-lbl">Principal</div>
+      <div class="ni on" onclick="goTo('dashboard',this)"><span class="ni-ic">📊</span>Dashboard</div>
+      <div class="ni" onclick="goTo('members',this)"><span class="ni-ic">👥</span>Membros<span class="nbadge" id="nbadge">0</span></div>
+      <div class="ni" onclick="goTo('cells',this)"><span class="ni-ic">🏠</span>Células</div>
+      <div class="nav-lbl">Chamada & Frequência</div>
+      <div class="ni" onclick="goTo('checkin',this)"><span class="ni-ic">✅</span>Fazer Chamada</div>
+      <div class="ni" onclick="goTo('history',this)"><span class="ni-ic">📋</span>Histórico</div>
     </nav>
+    <div class="sb-ft">
+      <button class="sbbtn" onclick="toast('🔔','Sem novas notificações')">🔔</button>
+      <button class="sbbtn" onclick="doLogout()" title="Sair">🚪</button>
+    </div>
   </aside>
 
   <main class="mc">
     <div class="topbar">
-      <div>
-        <div class="pg-title" id="pgtit">Dashboard</div>
-        <div class="pg-sub" id="pgsub">Visão geral</div>
-      </div>
+      <div><div class="pg-title" id="pgtit">Dashboard</div><div class="pg-sub" id="pgsub">Visão geral da juventude</div></div>
       <div class="topbar-actions">
-        <button class="btn-p btn-sm" onclick="openModal('mo-member')" style="padding: 8px 16px;">+ Novo</button>
+        <button class="btn-a" onclick="openModal('mo-member')">+ Membro</button>
       </div>
     </div>
-
+    
     <div class="ca">
-
       <div id="page-dashboard" class="page on">
         <div class="sg">
-          <div class="sc go"><div class="si">👥</div><div class="sv" id="st-tot">0</div><div class="sl">Membros</div></div>
-          <div class="sc gr"><div class="si">✅</div><div class="sv" id="st-freq">0%</div><div class="sl">Frequência</div></div>
-          <div class="sc bl"><div class="si">📋</div><div class="sv" id="st-sess">0</div><div class="sl">Chamadas</div></div>
-          <div class="sc ro"><div class="si">🏠</div><div class="sv">0</div><div class="sl">Células</div></div>
+          <div class="sc go"><div class="si">👥</div><div class="sv" id="st-tot">0</div><div class="sl">Jovens Cadastrados</div></div>
+          <div class="sc gr"><div class="si">✅</div><div class="sv" id="st-freq">0%</div><div class="sl">Frequência Média</div></div>
+          <div class="sc bl"><div class="si">📋</div><div class="sv" id="st-sess">0</div><div class="sl">Chamadas Realizadas</div></div>
+          <div class="sc ro"><div class="si">🌟</div><div class="sv" id="st-100">0</div><div class="sl">Jovens 100% no Ano</div></div>
         </div>
-        
-        <div class="card">
-          <div class="ch"><div class="ct">Frequência por Encontro</div></div>
-          <div class="cb"><div class="chc"><canvas id="dc2"></canvas></div></div>
+        <div class="cgrid">
+          <div class="card"><div class="ch"><div class="ct">Por Tipo de Encontro</div></div><div class="cb"><div class="chc"><canvas id="dc2"></canvas></div></div></div>
         </div>
-
-        <div class="card">
-          <div class="ch"><div class="ct">Últimas Chamadas</div></div>
-          <div class="cb" id="dash-sess" style="padding: 0;"></div>
+        <div class="g2" style="margin-top:16px">
+          <div class="card"><div class="ch"><div class="ct">🏅 Top 5 da Frequência</div></div><div class="cb"><div class="rl" id="dash-rank"></div></div></div>
+          <div class="card"><div class="ch"><div class="ct">📋 Últimas Chamadas</div></div><div class="cb" style="padding:0"><div class="sl" id="dash-sess" style="padding:16px"></div></div></div>
         </div>
       </div>
 
       <div id="page-members" class="page">
-        <div class="fg">
-          <input class="fc" id="msrch" placeholder=" " oninput="filtMembers()">
-          <label>🔍 Buscar Jovem</label>
-        </div>
+        <div class="sb2"><span class="sic">🔍</span><input class="sin" id="msrch" placeholder="Buscar jovem..." oninput="filtMembers()"><select class="fc" style="width:auto;padding:8px" id="mfilt" onchange="filtMembers()"><option value="">Todos</option><option>Louvor</option><option>Células</option><option>Intercessão</option><option>Mídia</option><option>Evangelismo</option></select></div>
         <div class="mgrid" id="mgrid"></div>
       </div>
 
+      <div id="page-cells" class="page"><div class="cg" id="cgrid"></div></div>
+
       <div id="page-checkin" class="page">
-        <div class="card">
-          <div class="ch"><div class="ct text-yellow" id="ci-tit">Nova Chamada</div></div>
-          <div class="cb">
-            <div class="fg">
-              <select class="fc" id="ci-type" onchange="updCI()">
-                <option value="culto">Culto</option>
-                <option value="celula">Célula</option>
-                <option value="evento">Evento</option>
-              </select>
-              <label>Tipo</label>
+        <div class="g2">
+          <div class="card">
+            <div class="ch">
+              <div><div class="ct" id="ci-tit">Culto de Jovens</div><div style="margin-top:4px" id="ci-badge"><span class="mb mc-">✝️ Culto</span></div></div>
             </div>
-            <div class="fg">
-              <input type="date" class="fc" id="ci-date" onchange="updCI()">
-              <label>Data</label>
+            <div class="cb">
+              <div style="background:var(--hover);border-radius:var(--r);padding:20px;margin-bottom:20px">
+                <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--txm);margin-bottom:12px">Configurar chamada</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+                  <div><label style="font-size:11px;color:var(--tx2);display:block;margin-bottom:6px">Tipo</label>
+                    <select class="fc" id="ci-type" onchange="updCI()"><option value="culto">✝️ Culto</option><option value="reuniao">📋 Reunião</option><option value="celula">🏠 Célula</option><option value="evento">🎉 Evento</option></select></div>
+                  <div><label style="font-size:11px;color:var(--tx2);display:block;margin-bottom:6px">Data</label><input type="date" class="fc" id="ci-date" onchange="updCI()"></div>
+                </div>
+                <div style="margin-bottom:16px"><label style="font-size:11px;color:var(--tx2);display:block;margin-bottom:6px">Descrição</label><input class="fc" id="ci-desc" placeholder="Ex: Culto de Jovens..." oninput="updCI()"></div>
+                <button class="btn-p" style="width:100%;" onclick="saveSession()">💾 Salvar no Banco</button>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+                <div class="sc gr" style="padding:16px;text-align:center"><div class="sv" id="cpres">0</div><div class="sl">Presentes</div></div>
+                <div class="sc ro" style="padding:16px;text-align:center"><div class="sv" id="cabs">0</div><div class="sl">Ausentes</div></div>
+                <div class="sc bl" style="padding:16px;text-align:center"><div class="sv" id="cpct">0<span style="font-size:16px">%</span></div><div class="sl">Frequência</div></div>
+              </div>
+              <div class="pb thick" style="margin-bottom:20px"><div class="pf" id="cibar" style="width:0%"></div></div>
+              <div class="sb2" style="margin-bottom:16px;"><span class="sic">🔍</span><input class="sin" id="cisrch" placeholder="Buscar membro..." oninput="rendCI()"></div>
+              <div class="plist" id="cilist"></div>
             </div>
-            <div class="fg">
-              <input class="fc" id="ci-desc" placeholder=" " oninput="updCI()">
-              <label>Descrição</label>
-            </div>
-            
-            <button class="btn-p" onclick="saveSession()">Salvar Chamada</button>
-            
-            <div style="margin-top: 24px; text-align: center;">
-              <h3 class="text-blue" id="cpct">0%</h3>
-              <p class="text-muted">Frequência Atual</p>
-            </div>
-            
-            <div class="fg" style="margin-top: 16px;">
-              <input class="fc" id="cisrch" placeholder=" " oninput="rendCI()">
-              <label>Filtrar lista...</label>
-            </div>
-            <div id="cilist" style="display: flex; flex-direction: column; gap: 10px;"></div>
+          </div>
+          <div class="card">
+            <div class="ch"><div><div class="ct">📋 Salvas Recentes</div><div class="csub" id="sess-cnt">0 registros</div></div></div>
+            <div class="cb" style="padding:0"><div class="sl" id="sesslist" style="padding:16px;max-height:500px;overflow-y:auto"></div></div>
           </div>
         </div>
       </div>
 
-      <div id="page-events" class="page">
-        <div class="card"><div class="ch"><div class="ct">Calendário</div></div>
-          <div class="cb" id="evgrid">Nenhum evento futuro.</div>
+      <div id="page-history" class="page">
+        <div class="pftabs" id="htabs">
+          <button class="pftab on" onclick="filtHist('todos',this)">Todos</button><button class="pftab" onclick="filtHist('culto',this)">✝️ Cultos</button><button class="pftab" onclick="filtHist('reuniao',this)">📋 Reuniões</button>
+        </div>
+        <div class="card" style="margin-bottom:20px">
+          <div class="ch"><div class="ct">📋 Todas as Chamadas</div></div>
+          <div class="tw"><table><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Pres.</th><th>Aus.</th><th>Freq.</th></tr></thead><tbody id="htbody"></tbody></table></div>
         </div>
       </div>
-
-      <div id="page-cells" class="page"><div id="cgrid"></div></div>
-      <div id="page-history" class="page"><div id="htabs"></div><div id="hc1"></div><div id="hc2"></div><table id="htbody"></table><select id="mhsel"></select><div id="mhbody"></div></div>
-      <div id="page-top10" class="page"><select id="yrsel"></select><div id="podium"></div><div id="t10grid"></div><div id="ystats"></div><canvas id="t10chart"></canvas></div>
-      <div id="page-discipleship" class="page"><div id="disc-tree"></div></div>
-      <div id="page-chat" class="page"><div id="chatc"></div><div id="chatpeer"></div><div id="chatms"></div><input id="chatin"><button onclick="sendMsg()"></button></div>
-      <div id="page-announcements" class="page"><div id="annlist"></div><input id="at"><textarea id="ab"></textarea><select id="ap"></select><button onclick="addAnn()"></button></div>
-      <div id="page-gamification" class="page"><div id="bdgrid"></div><div id="fullrank"></div></div>
-      <div id="page-reports" class="page"><canvas id="rp1"></canvas><canvas id="rp2"></canvas></div>
-      <div id="page-settings" class="page"></div>
-
+      
+      <div id="page-top10" class="page"></div><div id="page-events" class="page"></div><div id="page-discipleship" class="page"></div><div id="page-chat" class="page"></div><div id="page-announcements" class="page"></div><div id="page-gamification" class="page"></div><div id="page-reports" class="page"></div><div id="page-settings" class="page"></div>
     </div>
   </main>
 
   <nav class="bottom-nav">
-    <div class="bn-item on" onclick="goTo('dashboard', this); setActiveBN(this)">
-      <span class="ni-ic">📊</span><span>Início</span>
-    </div>
-    <div class="bn-item" onclick="goTo('members', this); setActiveBN(this)">
-      <span class="ni-ic">👥</span><span>Jovens</span>
-    </div>
-    <div class="bn-item" onclick="goTo('checkin', this); setActiveBN(this)">
-      <span class="ni-ic">✅</span><span>Chamada</span>
-    </div>
-    <div class="bn-item" onclick="goTo('events', this); setActiveBN(this)">
-      <span class="ni-ic">📅</span><span>Agenda</span>
-    </div>
+    <div class="bn-item on" onclick="goTo('dashboard', null); setActiveBN(this)"><span class="ni-ic">📊</span>Início</div>
+    <div class="bn-item" onclick="goTo('members', null); setActiveBN(this)"><span class="ni-ic">👥</span>Jovens</div>
+    <div class="bn-item" onclick="goTo('checkin', null); setActiveBN(this)"><span class="ni-ic">✅</span>Chamada</div>
+    <div class="bn-item" onclick="goTo('history', null); setActiveBN(this)"><span class="ni-ic">📋</span>Histórico</div>
   </nav>
-
 </div>
 
 <div class="mo" id="mo-member">
   <div class="mdl">
-    <div class="mhd">
-      <div class="mtit text-yellow">👤 Novo Membro</div>
-      <button class="mclose" onclick="closeModal('mo-member')">✕</button>
-    </div>
-    <div class="fg"><input class="fc" id="nm-name" placeholder=" "><label>Nome Completo</label></div>
-    <div class="fg">
-      <select class="fc" id="nm-min">
-        <option>Louvor</option><option>Intercessão</option><option>Células</option>
-      </select>
-      <label>Ministério</label>
-    </div>
-    <div class="fg"><input class="fc" id="nm-phone" placeholder=" "><label>Telefone</label></div>
-    <input type="hidden" id="nm-birth">
-    <input type="hidden" id="nm-email">
-    <input type="hidden" id="nm-gifts">
-    <input type="hidden" id="nm-notes">
-    <button class="btn-p" onclick="addMember()">Salvar</button>
+    <div class="mhd"><div class="mtit text-yellow">👤 Novo Jovem</div><button class="mclose" onclick="closeModal('mo-member')">✕</button></div>
+    <div class="fg"><label>Nome Completo</label><input class="fc" id="nm-name" placeholder="Nome do jovem"></div>
+    <div class="fg"><label>Ministério</label><select class="fc" id="nm-min"><option>Nenhum</option><option>Louvor</option><option>Intercessão</option><option>Células</option></select></div>
+    <button class="btn-p" onclick="addMember()">Salvar no Banco</button>
   </div>
 </div>
 
-<div class="mo" id="mo-qr"><div class="mdl"><button onclick="closeModal('mo-qr')">X</button><div id="qrstr"></div></div></div>
-
 <script>
-// PEQUENO HELPER UI PARA BOTTOM NAV (Não afeta Firebase)
+// ==========================================
+// FUNÇÕES JS BÁSICAS & UI
+// ==========================================
 function setActiveBN(element) {
   document.querySelectorAll('.bn-item').forEach(el => el.classList.remove('on'));
-  element.classList.add('on');
+  if(element) element.classList.add('on');
+}
+function swtab(t){
+  event.target.classList.add('active');
+  document.querySelectorAll('.auth-tab').forEach(x=>{if(x!==event.target)x.classList.remove('active')});
+  document.getElementById('lf').style.display=t==='login'?'':'none';
+  document.getElementById('rf').style.display=t==='register'?'':'none';
+}
+function doLogin(){
+  const em=document.getElementById('le').value||'pastor@igreja.com';
+  D.user={name:em.includes('pastor')?'Pastor João':em.split('@')[0],email:em,role:em.includes('pastor')?'Pastor':'Membro'};
+  launch();
+}
+function doRegister(){
+  D.user={name:document.getElementById('rn').value||'Novo',email:document.getElementById('re').value||'novo@igreja.com',role:document.getElementById('rr').value};
+  launch();
+}
+function doLogout(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('auth').style.display='flex';
+}
+function launch(){
+  document.getElementById('auth').style.display='none';
+  document.getElementById('app').classList.add('on');
+  document.getElementById('app').style.display='flex';
+  document.getElementById('uname').textContent=D.user.name;
+  document.getElementById('uemail').textContent=D.user.email;
+  document.getElementById('urole').textContent=D.user.role;
+  document.getElementById('uav').textContent=D.user.name[0].toUpperCase();
+  document.getElementById('ci-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('ci-desc').value='Culto de Jovens';
+  loadDataFromFirebase();
 }
 
-// COLOQUE EXATAMENTE AQUI O SEU SCRIPT DO FIREBASE COMPLETO (Copie e cole do seu arquivo anterior sem mudar 1 vírgula)
-// ...
+// ==========================================
+// DADOS & FIREBASE
+// ==========================================
+const D = { user: null, members: [], cells: [], sessions: [], live: {} };
+const TICO={culto:'✝️',reuniao:'📋',celula:'🏠',evento:'🎉'};
+const TLAB={culto:'Culto',reuniao:'Reunião',celula:'Célula',evento:'Evento'};
+const TCLS={culto:'mc-',reuniao:'mr-',celula:'mce-',evento:'me-'};
+const COLS=['#FFD700','#007BFF','#00E676','#FF0000','#0ea5e9','#8b5cf6'];
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC_Q14h3uSifxeaVP3U-G9pFHn83OC05DQ",
+  authDomain: "jovens-86641.firebaseapp.com",
+  projectId: "jovens-86641",
+  storageBucket: "jovens-86641.firebasestorage.app",
+  messagingSenderId: "503531393581",
+  appId: "1:503531393581:web:46ea380eb36c9936c85ea4"
+};
+
+let db;
+try {
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+} catch (error) {
+  console.error("Erro na inicialização do Firebase:", error);
+}
+
+async function loadDataFromFirebase() {
+  try {
+    toast('⏳', 'Sincronizando...');
+    const membersSnap = await db.collection("members").get();
+    if (!membersSnap.empty) { D.members = membersSnap.docs.map(doc => doc.data()); }
+    
+    const sessionsSnap = await db.collection("sessions").orderBy("date", "desc").get();
+    if (!sessionsSnap.empty) { D.sessions = sessionsSnap.docs.map(doc => doc.data()); }
+
+    D.live = {};
+    D.members.forEach(m => { D.live[m.id] = 0; });
+    
+    document.getElementById('nbadge').textContent = D.members.length;
+    renderAll();
+    toast('✅', 'Sincronizado!');
+  } catch (error) {
+    console.error("Erro no Firebase:", error);
+    toast('❌', 'Erro ao conectar. O sistema iniciará vazio.');
+    renderAll();
+  }
+}
+
+// ==========================================
+// FUNÇÕES DE LÓGICA DO APP
+// ==========================================
+function calcAtt(mid){
+  const id=mid; const tot=D.sessions.length;
+  const pres=D.sessions.reduce((s,x)=>s+(x.att[id]?1:0),0);
+  return{tot,pres,pct:tot?Math.round(pres/tot*100):0};
+}
+function getRanking(){ return D.members.map(m=>({...m,...calcAtt(m.id)})).sort((a,b)=>b.pct-a.pct||b.pres-a.pres); }
+function sStat(s){
+  const vs=Object.values(s.att);
+  const p=vs.filter(Boolean).length, t=D.members.length; 
+  return{pres:p,abs:t-p,tot:t,pct:t?Math.round(p/t*100):0};
+}
+function fmtD(str){if(!str)return'--/--/----'; return new Date(str+'T12:00:00').toLocaleDateString('pt-BR')}
+function fmtDs(str){if(!str)return'--/--'; return new Date(str+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})}
+function pcol(p){return p>=75?'var(--em)':p>=50?'var(--ac)':'var(--ro)'}
+
+const PGCFG={ dashboard:['Dashboard','Visão geral'], members:['Jovens','Gestão'], cells:['Células','Grupos'], checkin:['Chamada','Registre presenças'], history:['Histórico','Chamadas']};
+function goTo(pg,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.getElementById('page-'+pg).classList.add('on');
+  const c=PGCFG[pg]||[pg,''];
+  document.getElementById('pgtit').textContent=c[0];
+  document.getElementById('pgsub').textContent=c[1];
+  window.scrollTo(0,0);
+}
+
+function renderAll(){
+  rendMembers(D.members); rendCells(); updCI(); rendCI(); rendSessList();
+  rendHistTable('todos'); rendRankings(); updDashStats(); rendDashCharts();
+}
+
+function rendMembers(list){
+  const g=document.getElementById('mgrid');
+  if(!list.length){g.innerHTML='<div style="text-align:center;padding:48px;color:var(--txm)">Nenhum jovem encontrado. Clique em "+ Membro".</div>';return;}
+  g.innerHTML=list.map(m=>{
+    const{pct,pres,tot}=calcAtt(m.id); const c=pcol(pct);
+    return`<div class="mcard">
+      <div class="mav" style="background:${m.col} !important; color:#000;">${m.ini}</div>
+      <div class="mn">${m.name}</div>
+      <div class="mr">${m.role} · <span style="color:var(--ac)">${m.min}</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;font-weight:700;"><span style="color:var(--tx2)">Frequência</span><span style="color:${c}">${pct}%</span></div>
+      <div class="pb"><div class="pf" style="width:${pct}%;background:${c}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function filtMembers(){
+  const q=document.getElementById('msrch').value.toLowerCase();
+  const f=document.getElementById('mfilt').value;
+  rendMembers(D.members.filter(m=>(!f||m.min===f)&&(m.name.toLowerCase().includes(q)||m.min.toLowerCase().includes(q))));
+}
+
+function rendCells(){ document.getElementById('cgrid').innerHTML='<div style="color:var(--txm);padding:20px;text-align:center">Em manutenção para v2.</div>'; }
+
+function updCI(){
+  const tp=document.getElementById('ci-type').value;
+  const dc=document.getElementById('ci-desc').value||'Encontro';
+  document.getElementById('ci-tit').textContent=`${dc}`;
+}
+
+function liveCnt(){
+  const tot=D.members.length;
+  const pres=Object.values(D.live).filter(Boolean).length;
+  return{tot,pres,abs:tot-pres,pct:tot?Math.round(pres/tot*100):0};
+}
+
+function rendCI(){
+  const q=(document.getElementById('cisrch')?.value||'').toLowerCase();
+  const{tot,pres,abs,pct}=liveCnt();
+  document.getElementById('cpres').textContent=pres;
+  document.getElementById('cabs').textContent=abs;
+  document.getElementById('cpct').innerHTML=pct+'<span style="font-size:16px">%</span>';
+  document.getElementById('cibar').style.cssText=`width:${pct}%;background:${pcol(pct)}`;
+  
+  if(!D.members.length){ document.getElementById('cilist').innerHTML = '<div style="color:var(--txm);text-align:center;padding:15px">Cadastre jovens primeiro.</div>'; return; }
+  
+  document.getElementById('cilist').innerHTML=D.members
+    .filter(m=>!q||m.name.toLowerCase().includes(q))
+    .map(m=>{
+      const on=!!D.live[m.id];
+      const{pct:ap,pres:pr,tot:tt}=calcAtt(m.id);
+      return`<div class="pi">
+        <div class="pck ${on?'ok':'no'}">${on?'✓':'–'}</div>
+        <div class="pmav" style="background:${m.col} !important;">${m.ini}</div>
+        <div class="pnm">${m.name}</div>
+        <button class="btg ${on?'y':'n'}" onclick="togAtt('${m.id}')">${on?'✅ Pres.':'Registrar'}</button>
+      </div>`;
+    }).join('');
+}
+
+function togAtt(id){ D.live[id]=D.live[id]?0:1; rendCI(); }
+
+async function saveSession(){
+  if(D.members.length === 0) { toast('⚠️', 'Cadastre jovens primeiro!'); return; }
+  const tp=document.getElementById('ci-type').value;
+  const dc=document.getElementById('ci-desc').value||'Encontro';
+  const dt=document.getElementById('ci-date').value||new Date().toISOString().split('T')[0];
+  const att={};
+  D.members.forEach(m=>{att[m.id]=D.live[m.id]?1:0;});
+  const sessionData = { id: 's'+Date.now(), type: tp, desc: dc, date: dt, att: att };
+
+  try {
+    toast('⏳', 'Salvando...');
+    await db.collection("sessions").doc(sessionData.id).set(sessionData);
+    D.sessions.unshift(sessionData);
+    rendSessList(); updDashStats(); rendMembers(D.members); rendHistTable('todos');
+    toast('💾',`Chamada Salva!`);
+  } catch(e) { console.error(e); toast('❌', 'Erro ao salvar!'); }
+}
+
+function rendSessList(){
+  const el=document.getElementById('sesslist');
+  document.getElementById('sess-cnt').textContent=D.sessions.length+' reg.';
+  if(!D.sessions.length){el.innerHTML='<div style="text-align:center;padding:22px;color:var(--txm)">Nenhuma chamada salva</div>';return;}
+  el.innerHTML=D.sessions.map(s=>{
+    const{pres,pct}=sStat(s); const c=pcol(pct);
+    return`<div class="si2" onclick="loadSess('${s.id}')">
+      <div class="sinfo"><div class="stit">${s.desc}</div><div class="smeta"><span class="mb ${TCLS[s.type]}">${TICO[s.type]} ${TLAB[s.type]}</span><span>📅 ${fmtDs(s.date)}</span></div></div>
+      <div class="sn"><div class="snv" style="color:var(--em)">${pres}</div><div class="snl">pres</div></div>
+      <div><div class="spct" style="color:${c}">${pct}%</div><div class="mbar"><div class="mbar-f" style="width:${pct}%;background:${c}"></div></div></div>
+    </div>`;
+  }).join('');
+}
+
+function loadSess(id){
+  const s=D.sessions.find(x=>x.id===id);if(!s)return;
+  document.getElementById('ci-type').value=s.type;
+  document.getElementById('ci-desc').value=s.desc;
+  document.getElementById('ci-date').value=s.date;
+  D.members.forEach(m=>{D.live[m.id]=s.att[m.id]?1:0;});
+  updCI();rendCI(); toast('📋',`Visualizando Chamada`);
+}
+
+function filtHist(t,el){
+  document.querySelectorAll('#htabs .pftab').forEach(b=>b.classList.remove('on'));
+  if(el)el.classList.add('on'); rendHistTable(t);
+}
+
+function rendHistTable(t){
+  const rows=(t==='todos'?D.sessions:D.sessions.filter(s=>s.type===t)).map(s=>{
+    const{pres,abs,pct}=sStat(s);
+    return`<tr><td style="font-family:var(--mo);">${fmtDs(s.date)}</td><td><span class="mb ${TCLS[s.type]}">${TICO[s.type]}</span></td><td>${s.desc}</td><td><b style="color:var(--em)">${pres}</b></td><td><b style="color:var(--ro)">${abs}</b></td><td><b style="color:${pcol(pct)}">${pct}%</b></td></tr>`;
+  }).join('');
+  document.getElementById('htbody').innerHTML=rows||'<tr><td colspan="6" style="text-align:center;color:var(--txm);padding:20px">Vazio</td></tr>';
+}
+
+function rendRankings(){
+  const rk=getRanking();
+  document.getElementById('dash-rank').innerHTML=rk.length?rk.slice(0,5).map((m,i)=>`<div class="rrow"><div class="rnum">${i+1}</div><div class="rnm">${m.name}</div><div class="rv" style="color:${pcol(m.pct)}">${m.pct}%</div></div>`).join(''):'<div style="color:var(--txm)">Sem dados</div>';
+  document.getElementById('dash-sess').innerHTML=D.sessions.length?D.sessions.slice(0,5).map(s=>{
+    const{pct}=sStat(s);return`<div class="si2" onclick="goTo('checkin');loadSess('${s.id}')"><div class="sinfo"><div class="stit">${s.desc}</div></div><div class="spct" style="color:${pcol(pct)}">${pct}%</div></div>`;
+  }).join(''):'<div style="color:var(--txm)">Nenhuma chamada</div>';
+}
+
+function updDashStats(){
+  document.getElementById('st-tot').textContent=D.members.length;
+  document.getElementById('st-sess').textContent=D.sessions.length;
+  document.getElementById('st-100').textContent=getRanking().filter(m=>m.pct===100 && D.sessions.length>0).length;
+  const avgPct=D.sessions.length?Math.round(D.sessions.reduce((s,x)=>s+sStat(x).pct,0)/D.sessions.length):0;
+  document.getElementById('st-freq').innerHTML=avgPct+'%';
+}
+
+async function addMember(){
+  const n=document.getElementById('nm-name').value.trim();
+  if(!n){toast('⚠️','Preencha o nome!');return;}
+  const m = { id: Date.now().toString(), name: n, min: document.getElementById('nm-min').value, role: 'Membro', pts: 0, ini: n.substring(0,2).toUpperCase(), col: COLS[Math.floor(Math.random()*COLS.length)] };
+  
+  try {
+    toast('⏳', 'Salvando...');
+    await db.collection("members").doc(m.id).set(m);
+    D.members.push(m); D.live[m.id]=0;
+    rendMembers(D.members); updDashStats(); rendCI(); closeModal('mo-member');
+    toast('✅',`${n} salvo!`);
+  } catch(e) { console.error(e); toast('❌', 'Erro ao salvar!'); }
+}
+
+function openModal(id){document.getElementById(id).classList.add('on')}
+function closeModal(id){document.getElementById(id).classList.remove('on')}
+function toast(icon,msg){
+  const old=document.querySelector('.toast');if(old)old.remove();
+  const t=document.createElement('div'); t.className='toast'; t.innerHTML=`<span class="tic">${icon}</span><span class="tmsg">${msg}</span>`;
+  document.body.appendChild(t); setTimeout(()=>t.remove(),3000);
+}
+
+const charts={}; function dch(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+function bOpts(){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}};}
+function rendDashCharts(){
+  dch('dc2');const c2=document.getElementById('dc2');
+  const byt={culto:0,reuniao:0,celula:0,evento:0};D.sessions.forEach(s=>byt[s.type]++);
+  if(c2 && D.sessions.length)charts.dc2=new Chart(c2,{type:'doughnut',data:{labels:['Cultos','Reuniões','Células','Eventos'],datasets:[{data:[byt.culto,byt.reuniao,byt.celula,byt.evento],backgroundColor:['#FFD700','#007BFF','#00E676','#FF0000'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false}});
+}
 </script>
 </body>
 </html>
